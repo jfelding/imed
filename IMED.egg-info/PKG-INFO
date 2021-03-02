@@ -1,13 +1,13 @@
 Metadata-Version: 2.1
 Name: IMED
-Version: 0.0.1
+Version: 0.0.1.1
 Summary: Image Euclidean Distance and Standardizing Transforms
 Home-page: https://github.com/jfelding/IMED
 Author: Jacob Felding
 Author-email: jfelding@gmail.com
 License: UNKNOWN
 Project-URL: Bug Tracker, https://github.com/jfelding/IMED/issues
-Description: UNKNOWN
+Description: # IMED
 Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)

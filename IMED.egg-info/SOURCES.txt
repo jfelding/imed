@@ -1,6 +1,8 @@
+README.md
 pyproject.toml
 setup.cfg
 IMED/__init__.py
+IMED/standardizingTrans_ndim.py
 IMED.egg-info/PKG-INFO
 IMED.egg-info/SOURCES.txt
 IMED.egg-info/dependency_links.txt
