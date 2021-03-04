@@ -9,7 +9,7 @@ def standardizingTrans(imgs,sigma,method,eps=0,inverse=False):
 
     * imgs (3D array) is a sequence of images to be transformed with dimensions (T,M,N)
     * sigma (float)/array-like determines the zero-mean Gaussian that defines the IMED matrix G - not G^(1/2).
-      If sigma is an list, it should contain the same number of values as the number of dimensions of imgs.
+      If sigma is array-like it should contain the same number of values as the number of dimensions of imgs.
       
     * eps (float) is an optional small parameter to offset the Gaussian so that it is always numerically non-zero. 
     This can allow deconvolution without significant noise amplification.
