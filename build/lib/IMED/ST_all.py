@@ -1,16 +1,15 @@
 from standardizingTrans_ndim import ST_ndim_DCT, ST_ndim_FFT, ST_ndim_DCT_by_FFT
 from spatial_ST import ST_fullMat, ST_sepMat
-def standardizingTrans(imgs,sigma,method,eps=0,inverse=False):
+def standardizingTrans(imgs,sigma,method='dct',eps=0,inverse=False):
     """
     Takes sequence of images imgs and returns the Spatial Standardized Transform of all images.
     Methods 'full' and 'sep' are 2D methods.
-    
-    Parameters:
 
+    Parameters:
     * imgs (3D array) is a sequence of images to be transformed with dimensions (T,M,N)
     * sigma (float)/array-like determines the zero-mean Gaussian that defines the IMED matrix G - not G^(1/2).
-      If sigma is an list, it should contain the same number of values as the number of dimensions of imgs.
-      
+      If sigma is array-like it should contain the same number of values as the number of dimensions of imgs.
+
     * eps (float) is an optional small parameter to offset the Gaussian so that it is always numerically non-zero. 
     This can allow deconvolution without significant noise amplification.
     * method (string) is the method used to perform the standardizing transform. Choose between:
@@ -20,8 +19,8 @@ def standardizingTrans(imgs,sigma,method,eps=0,inverse=False):
      without enforcing symmetric boundary conditions
      4. **'dct_by_fft'**: Performs circular convolution using discrete fourier transforms of mirrored image and 
      Gaussian to ensure symmetric boundary conditions and reduce edge effects from 'Gibbs-like phenomenon'
-     5. **'dct'**: Performs symmetric convolution using discrete cosine transform of image, which is almost
-     identical to FFT_mirror method, but should be more efficient
+     5. **'dct'**: Performs symmetric convolution using discrete cosine transform of image, which is identical to
+     6. the 'dct_by_fft  method, but should be more efficient
     """
     
     if  method == 'full':
