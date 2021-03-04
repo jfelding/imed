@@ -1,5 +1,7 @@
 # IMage Euclidean Distance (IMED)
-The Image Euclidean Distance is found by transforming images or other continous data using a convolution operation, then taking the standard pixel-wise Euclidean distance between the image. This transform is referred to as the 'Standardizing Transform', or ST. This package contains five implementations of the standardizing transform. Two of them ('full', 'sep') are matrix methods that apply linear convolution, while the remainder are frequency/DFT methods ('fft', 'dct', 'dct_by_fft'). the 'fft' performs the transform using circular convolution, while 'dct' and 'dct_by_fft' give identical results and apply symmetric convolution.
+The Image Euclidean Distance is found by transforming images or other continous data using a convolution operation, then taking the standard pixel-wise Euclidean distance between the image. This transform is referred to as the 'Standardizing Transform', or ST. 
+
+This package contains five implementations of the standardizing transform. Two of them ('full', 'sep') are matrix methods that apply linear convolution, while the remainder are frequency/DFT methods ('fft', 'dct', 'dct_by_fft'). the 'fft' performs the transform using circular convolution, while 'dct' and 'dct_by_fft' give identical results and apply symmetric convolution.
 
 The most natural boundaries are often obtained using 'dct' and 'dct_by_fft' methods. The linear convolution methods tend to underestimate the boundaries, as they correspond to zero-padding the image berfore applying a certain Gaussian filter. 'fft' tends to give periodic boundary effects.
 
