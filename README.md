@@ -30,7 +30,22 @@ Here is the doc:
      6. the 'dct_by_fft  method, but should be more efficient
     """
 
-
-
-## Parallelization of frequency methods, and changing the backend
+## Parallelization of frequency methods and backend change
 The frequency methods of the standardizing transform ('fft', 'dct' and 'dct_by_fft') are implemented using scipy.fft.
+By chopping up the transforms into smaller chunks, scipy supports parallelization by specifying the _workers_ environment variable:
+
+    with fft.set_workers(-1):
+        standardizingTrans(imgs,sigma,method,eps=0,inverse=False)
+        
+When the number of workers is set to a negative integer (like above), the number of workers is set to os.cpu_count().
+
+Scipy also supports computations using another backend, like pyFFTW:
+    
+     import pyfftw
+     with scipy.fft.set_backend(pyfftw.interfaces.scipy_fft):
+        #faster if we enable cache using pyfftw
+        pyfftw.interfaces.cache.enable()
+        # perform standardizing transform using frequency method of your choice
+        imgs_ST = standardizingTrans(imgs,sigma=(10.,20.),method='DCT',eps=0,inverse=False)
+
+        
