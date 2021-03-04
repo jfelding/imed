@@ -10,6 +10,11 @@ The frequency methods apply an n-dimensional transform and so can be used for co
 The 'full' method is the original method, and is only here for completeness. It consumes a lot of memory, and is very slow. Its use is not recommended.
 
 ## Getting Started with the Standardizing Transform
+**Installation**:
+Install the latest release from pypi:
+
+    pip install IMED
+
 To get started, IMED.ST_all contains a wrapper function standardizingTrans(imgs,sigma,method,eps=0,inverse=False)
 Here is the doc:
 
