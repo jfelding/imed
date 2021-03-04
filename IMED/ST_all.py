@@ -1,6 +1,6 @@
 from standardizingTrans_ndim import ST_ndim_DCT, ST_ndim_FFT, ST_ndim_DCT_by_FFT
 from spatial_ST import ST_fullMat, ST_sepMat
-def standardizingTrans(imgs,sigma,method,eps=0,inverse=False):
+def standardizingTrans(imgs,sigma,method='dct',eps=0,inverse=False):
     """
     Takes sequence of images imgs and returns the Spatial Standardized Transform of all images.
     Methods 'full' and 'sep' are 2D methods.
