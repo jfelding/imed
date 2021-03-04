@@ -5,6 +5,8 @@ The most natural boundaries are often obtained using 'dct' and 'dct_by_fft' meth
 
 The frequency methods apply an n-dimensional transform and so can be used for continous signals with any number of dimensions. The matrix methods are 2D only.
 
+The 'full' method is the original method, and is only here for completeness. It consumes a lot of memory, and is very slow. Its use is not recommended.
+
 ## Getting Started with the Standardizing Transform
 To get started, IMED.ST_all contains a wrapper function standardizingTrans(imgs,sigma,method,eps=0,inverse=False)
 Here is the doc:
@@ -50,3 +52,5 @@ Scipy also supports computations using another backend. For example, we can use 
         # perform standardizing transform using frequency method of your choice
         imgs_ST = standardizingTrans(imgs,sigma=(10.,20.),method='DCT',eps=0,inverse=False)
         
+## Inverse Transforms
+In principle, the frequency methods allow simple inverse ST by inverse filtering, and this can be triggered using the *inverse=True* flag. However, in the present of any noise, catastrophic noise amplification can occur, especially since the filter used in this transform is Gaussian and tends towards zero. The effect will increase with sigma. If an inverse transformation is necessary, it is recommended to use the **eps** parameter to add a small constant like 1e-5 to the filter in frequency space, i.e. the optical transfer function. The **eps** parameter is also available for (forward) standardizing transforms.
