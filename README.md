@@ -18,11 +18,11 @@ Install the latest release from pypi:
 To get started, IMED.ST_all contains a wrapper function standardizingTrans(imgs,sigma,method,eps=0,inverse=False)
 Here is the doc:
 
-    Takes sequence of images imgs and returns the Spatial Standardized Transform of all images.
-    Methods 'full' and 'sep' are 2D methods.
+    Takes n-dimensional data and returns the n-dimensional Standardized Transform.
+    Methods 'full' and 'sep' are 2D methods only.
     
     Parameters:
-    * imgs (3D array) is a sequence of images to be transformed with dimensions (T,M,N)
+    * imgs is a signal 
     * sigma (float)/array-like determines the zero-mean Gaussian that defines the IMED matrix G - not G^(1/2).
       If sigma is array-like it should contain the same number of values as the number of dimensions of imgs.
       
