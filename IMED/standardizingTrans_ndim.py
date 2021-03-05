@@ -6,6 +6,31 @@ import numpy as jnp
 from scipy.fft import rfftn, irfftn, fftfreq,rfftfreq
 from numpy import delete #no jnp version avaliable yet
 
+NA = np.newaxis
+
+def axis_split(A,axis):
+    (Am,Ai,An) = (int(np.prod(A.shape[:axis])),  A.shape[axis], int(np.prod(A.shape[axis+1:])));
+    return (Am,Ai,An)
+
+def ST_1dim_DCT(Img,sigma,d=0,eps=0,inverse=False):
+    # Gaussian in k-space
+    k_d     = np.linspace(0,np.pi,Img.shape[d])
+    g12_dct = np.exp(- k_d**2*sigma**2/4) + eps
+
+    # Transform to k-space
+    img_dct = dct(Img, axis=d,type=1).reshape( axis_split(Img,d) )
+    
+    if inverse:
+        Img_folded_k = img_dct / g12_dct[NA,:,NA]
+    else:
+        Img_folded_k = img_dct * g12_dct[NA,:,NA]
+
+    Img_folded = idct(Img_folded_k,axis=d,type=1)
+
+    return Img_folded.reshape(Img.shape)
+    
+    
+    
 def ST_ndim_DCT(imgs,sigma,eps=0.,inverse=False):
     # automatic d-dimensional standardizing transform
     # via DCT, i.e. symmetric boundary conditions
@@ -29,7 +54,7 @@ def ST_ndim_DCT(imgs,sigma,eps=0.,inverse=False):
         if sigma[d]==0:
             #convolution has no effect
             continue
-            
+
         if shape[d]<2:
             #cant do convolution along this axis 
             continue
