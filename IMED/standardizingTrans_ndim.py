@@ -26,7 +26,7 @@ def ST_ndim_DCT(imgs,sigma,eps=0.,inverse=False):
         
     # do convolution, axis by axis
     for d in range(dims):
-        if sigma==0:
+        if sigma[d]==0:
             #convolution has no effect
             continue
             
@@ -77,6 +77,9 @@ def ST_ndim_DCT_by_FFT(imgs, sigma, eps=0.,inverse=False):
         sigma = np.ones(dims)*sigma
     
     for d in range(dims):
+        if sigma[d]==0:
+            #convolution has no effect
+            continue        
         if orig_shape[d]<3:
             print(f'Skipping dimension d={d} with size {orig_shape[d]}')
             #cant do convolution along this axis 
@@ -142,6 +145,10 @@ def ST_ndim_FFT(imgs, sigma, eps=0.,inverse=False):
         sigma = np.ones(dims)*sigma
     
     for d in range(dims):
+        if sigma[d]==0:
+            #convolution has no effect
+            continue
+            
         if orig_shape[d]<2:
             #cant do convolution along this axis 
             continue
