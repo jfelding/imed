@@ -26,6 +26,10 @@ def ST_ndim_DCT(imgs,sigma,eps=0.,inverse=False):
         
     # do convolution, axis by axis
     for d in range(dims):
+        if sigma==0:
+            #convolution has no effect
+            continue
+            
         if shape[d]<2:
             #cant do convolution along this axis 
             continue
