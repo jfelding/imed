@@ -90,7 +90,8 @@ def ST_ndim_DCT(imgs,sigma,eps=0.,inverse=False):
         
         imgs = ST_1dim_DCT(Img=imgs,sigma=sigma[d],d=d,eps=eps,inverse=inverse)
         
-def ST_ndim_DCT_by_FFT(imgs, sigma, eps=0.,inverse=False):
+        
+def ST_DCT_by_FFT(imgs, sigma, eps=0.,inverse=False):
     # automatic d-dimensional standardizing transform
     # via FFT. Uses per-axis mirroring to reduce edge discontinuities
     # eps is an optional constant added to the OTF to reduce  
@@ -123,42 +124,13 @@ def ST_ndim_DCT_by_FFT(imgs, sigma, eps=0.,inverse=False):
         imgs_reverse = imgs_reverse.take(indices=range(1,imgs_reverse.shape[d]-1),axis=d)
         imgs         = jnp.concatenate((imgs,imgs_reverse),axis=d)
         
-        img_fft = rfftn(imgs, axes=all_dims)
+        imgs = ST_1dim_FFT(imgs,sigma=sigma[d],d=d,eps=eps,inverse=inverse)
         
-        # last axis will be half of other axes with rfft...
-        fft_shape = img_fft.shape
-            
-        # if last axis, need other k_d for rfft unlike fft
-        if d == all_dims[-1]:
-            k_d = rfftfreq(2*fft_shape[d]-1)*2*jnp.pi
-            if imgs.dtype == jnp.float32:
-                k_d = jnp.float32(k_d)
-        else:
-            # equal to but with same dtype as input
-            k_d = fftfreq(fft_shape[d])*2*jnp.pi
-            if imgs.dtype == jnp.float32:
-                k_d = jnp.float32(k_d)
-            
-        g12_fft = jnp.exp(- k_d**2*sigma[d]**2 / (4)) + eps
-
-        other_dims = tuple(delete(all_dims, d))
-
-        g12_fft =  jnp.expand_dims(g12_fft, axis = other_dims)
-
-        for not_d in other_dims:
-            # probably have to handle fftshift
-            g12_fft = jnp.repeat(g12_fft,repeats=fft_shape[not_d],axis=not_d)
-            
-        if inverse:
-            imgs = irfftn(img_fft/g12_fft,axes=all_dims)
-        else:
-            imgs = irfftn(img_fft*g12_fft,axes=all_dims)
-    
         #Cut to original shape before moving on to other axis         
         imgs = imgs.take(indices=range(orig_shape[d]),axis=d)
     
     return imgs    
-    
+ 
 def ST_ndim_FFT(imgs, sigma, eps=0.,inverse=False):
     # automatic d-dimensional standardizing transform
     # via FFT. Uses per-axis mirroring to reduce edge discontinuities
