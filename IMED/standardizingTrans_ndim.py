@@ -29,6 +29,35 @@ def ST_1dim_DCT(Img,sigma,d=0,eps=0,inverse=False):
 
     return Img_folded.reshape(Img.shape)
     
+def ST_1dim_FFT(Img,sigma,d=0,eps=0,inverse=False):   
+    # Transform to k-space
+    #img_fft = rfftn(Img)
+    img_fft = rfftn(Img)
+
+    fft_shape = img_fft.shape
+    img_fft = img_fft.reshape(axis_split(img_fft,d))
+    
+    # if last axis, need other k definition for rfft
+    if d == Img.ndim-1:
+        k_d = rfftfreq(2*fft_shape[d]-1)*2*jnp.pi
+        if Img.dtype == jnp.float32:
+            k_d = jnp.float32(k_d)
+    else:
+        k_d = fftfreq(fft_shape[d])*2*jnp.pi  
+        if Img.dtype == jnp.float32:
+            k_d = jnp.float32(k_d)
+            
+    # Gaussian in k-space
+    g12_fft = np.exp(- k_d**2*sigma**2/4) + eps
+    
+    if inverse:
+        Img_folded_k = img_fft / g12_fft[NA,:,NA]
+    else:
+        Img_folded_k = img_fft * g12_fft[NA,:,NA]
+
+    Img_folded = irfftn(Img_folded_k.reshape(fft_shape))
+    
+    return Img_folded.reshape(Img.shape)    
     
     
 def ST_ndim_DCT(imgs,sigma,eps=0.,inverse=False):
@@ -156,46 +185,6 @@ def ST_ndim_FFT(imgs, sigma, eps=0.,inverse=False):
             #cant do convolution along this axis 
             continue
         
-        img_fft = rfftn(imgs, axes=all_dims)
-        
-        # last axis will be half of other axes with rfft...
-        fft_shape = img_fft.shape
-        
-        """# if last axis, need other k definition for rfft
-        if d == all_dims[-1]:
-            k_d = jnp.linspace(0,jnp.pi,fft_shape[d],dtype=imgs.dtype)
-        else:
-            # equal to #jnp.fft.fftfreq(fft_shape[d])*2*jnp.pi but with same dtype as input
-            k_d = (jnp.arange(1, fft_shape[d] + 1, dtype=imgs.dtype) // 2) / fft_shape[d] *2*jnp.pi"""
-            
-        # if last axis, need other k definition for rfft
-        if d == all_dims[-1]:
-            k_d = rfftfreq(2*fft_shape[d]-1)*2*jnp.pi#jnp.linspace(0,jnp.pi,fft_shape[d],dtype=imgs.dtype)
-            if imgs.dtype == jnp.float32:
-                k_d = jnp.float32(k_d)
-        else:
-            # equal to but with same dtype as input
-            k_d = fftfreq(fft_shape[d])*2*jnp.pi #(jnp.arange(1, fft_shape[d] + 1, dtype=imgs.dtype) // 2) / fft_shape[d] *2*jnp.pi 
-            if imgs.dtype == jnp.float32:
-                k_d = jnp.float32(k_d)
-                
-        g12_fft = jnp.exp(- k_d**2*sigma[d]**2 / (4)) + eps
-
-        other_dims = tuple(delete(all_dims, d))
-
-        g12_fft =  jnp.expand_dims(g12_fft, axis = other_dims)
-
-        for not_d in other_dims:
-            
-            # probably have to handle fftshift
-            g12_fft = jnp.repeat(g12_fft,repeats=fft_shape[not_d],axis=not_d)
-            
-        if inverse:
-            imgs = irfftn(img_fft/g12_fft,axes=all_dims)
-        else:
-            imgs = irfftn(img_fft*g12_fft,axes=all_dims)
-    
-        #Cut to original shape before moving on to other axis         
-        #imgs = imgs.take(indices=range(orig_shape[d]),axis=d)
+        imgs = ST_1dim_FFT(imgs,sigma=sigma[d],d=d,eps=eps,inverse=inverse)
     
     return imgs
