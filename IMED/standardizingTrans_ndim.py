@@ -2,9 +2,9 @@ import numpy as np
 from scipy.fft import dct, idct
 #from scipy.fft import rfftn, irfftn
 #from jax.numpy.fft import rfftn, irfftn
-import numpy as jnp
+import jax.numpy as jnp
 from scipy.fft import rfftn, irfftn, fftfreq,rfftfreq
-from numpy import delete #no jnp version avaliable yet
+
 
 NA = np.newaxis
 
@@ -29,10 +29,13 @@ def ST_1dim_DCT(Img,sigma,d=0,eps=0,inverse=False):
 
     return Img_folded.reshape(Img.shape)
     
-def ST_1dim_FFT(Img,sigma,d=0,eps=0,inverse=False):   
+def ST_1dim_FFT(Img,sigma,d=0,eps=0,inverse=False,jax_backend=False):   
     # Transform to k-space
     #img_fft = rfftn(Img)
-    img_fft = rfftn(Img)
+    if jax_backend:
+        img_fft = jnp.fft.rfftn(Img)
+    else:   
+        img_fft = rfftn(Img)
 
     fft_shape = img_fft.shape
     img_fft = img_fft.reshape(axis_split(img_fft,d))
@@ -54,11 +57,13 @@ def ST_1dim_FFT(Img,sigma,d=0,eps=0,inverse=False):
         Img_folded_k = img_fft / g12_fft[NA,:,NA]
     else:
         Img_folded_k = img_fft * g12_fft[NA,:,NA]
+    print()
+    if jax_backend:
+        Img_folded = jnp.fft.irfftn(Img_folded_k.reshape(fft_shape))
+    else:
+        Img_folded = irfftn(Img_folded_k.reshape(fft_shape))
 
-    Img_folded = irfftn(Img_folded_k.reshape(fft_shape))
-    
     return Img_folded.reshape(Img.shape)    
-    
     
 def ST_ndim_DCT(imgs,sigma,eps=0.,inverse=False):
     # automatic d-dimensional standardizing transform
@@ -91,7 +96,7 @@ def ST_ndim_DCT(imgs,sigma,eps=0.,inverse=False):
         imgs = ST_1dim_DCT(Img=imgs,sigma=sigma[d],d=d,eps=eps,inverse=inverse)
         
         
-def ST_DCT_by_FFT(imgs, sigma, eps=0.,inverse=False):
+def ST_DCT_by_FFT(imgs, sigma, eps=0.,inverse=False,jax_backend=True):
     # automatic d-dimensional standardizing transform
     # via FFT. Uses per-axis mirroring to reduce edge discontinuities
     # eps is an optional constant added to the OTF to reduce  
@@ -119,12 +124,12 @@ def ST_DCT_by_FFT(imgs, sigma, eps=0.,inverse=False):
             continue
         
         #mirror image along axis d
-        imgs_reverse = jnp.flip(imgs, axis=d)
+        imgs_reverse = np.flip(imgs, axis=d)
         # for DCT equivalence
         imgs_reverse = imgs_reverse.take(indices=range(1,imgs_reverse.shape[d]-1),axis=d)
-        imgs         = jnp.concatenate((imgs,imgs_reverse),axis=d)
+        imgs         = np.concatenate((imgs,imgs_reverse),axis=d)
         
-        imgs = ST_1dim_FFT(imgs,sigma=sigma[d],d=d,eps=eps,inverse=inverse)
+        imgs = ST_1dim_FFT(imgs,sigma[d],d,eps,inverse,jax_backend)
         
         #Cut to original shape before moving on to other axis         
         imgs = imgs.take(indices=range(orig_shape[d]),axis=d)
@@ -157,6 +162,6 @@ def ST_ndim_FFT(imgs, sigma, eps=0.,inverse=False):
             #cant do convolution along this axis 
             continue
         
-        imgs = ST_1dim_FFT(imgs,sigma=sigma[d],d=d,eps=eps,inverse=inverse)
+        imgs = ST_1dim_FFT(imgs,sigma[d],d,eps,inverse,jax_backend)
     
     return imgs
