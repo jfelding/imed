@@ -25,7 +25,7 @@ def ST_1dim_DCT(Img,sigma,d=0,eps=0,inverse=False):
     else:
         Img_folded_k = img_dct * g12_dct[NA,:,NA]
 
-    Img_folded = idct(Img_folded_k,axis=d,type=1)
+    Img_folded = idct(Img_folded_k,axis=1,type=1)
 
     return Img_folded.reshape(Img.shape)
     
