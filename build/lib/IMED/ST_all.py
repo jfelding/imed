@@ -1,15 +1,15 @@
-from standardizingTrans_ndim import ST_ndim_DCT, ST_ndim_FFT, ST_ndim_DCT_by_FFT
-from spatial_ST import ST_fullMat, ST_sepMat
+from IMED.standardizingTrans_ndim import ST_ndim_DCT, ST_ndim_FFT, ST_ndim_DCT_by_FFT
+from IMED.spatial_ST import ST_fullMat, ST_sepMat
 def standardizingTrans(imgs,sigma,method='dct',eps=0,inverse=False):
     """
-    Takes sequence of images imgs and returns the Spatial Standardized Transform of all images.
-    Methods 'full' and 'sep' are 2D methods.
-
+    Takes n-dimensional data and returns the n-dimensional Standardized Transform.
+    Methods 'full' and 'sep' are 2D methods only.
+    
     Parameters:
-    * imgs (3D array) is a sequence of images to be transformed with dimensions (T,M,N)
+    * imgs is a signal 
     * sigma (float)/array-like determines the zero-mean Gaussian that defines the IMED matrix G - not G^(1/2).
       If sigma is array-like it should contain the same number of values as the number of dimensions of imgs.
-
+      
     * eps (float) is an optional small parameter to offset the Gaussian so that it is always numerically non-zero. 
     This can allow deconvolution without significant noise amplification.
     * method (string) is the method used to perform the standardizing transform. Choose between:
