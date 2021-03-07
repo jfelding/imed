@@ -58,31 +58,9 @@ def ST_ndim_DCT(imgs,sigma,eps=0.,inverse=False):
         if shape[d]<2:
             #cant do convolution along this axis 
             continue
-        k_d     = np.linspace(0,np.pi,shape[d])
-        g12_dct = np.exp(- k_d**2*sigma[d]**2 / (4)) + eps
-
-        other_dims = tuple(np.delete(all_dims, d))
-
-        g12_dct =  np.expand_dims(g12_dct,axis = other_dims)
         
-        # DCT transform along all axes and  
-        # repeat OTF for axis-by-axis convolution
-        img_dct = dct(imgs, axis=d,type=1)
-        for not_d in other_dims:
-            g12_dct = np.repeat(g12_dct,repeats=shape[not_d],axis=not_d)
-            #img_dct = dct(img_dct, axis=not_d,type=1)
+        imgs = ST_1dim_DCT(Img=imgs,sigma=sigma[d],d=d,eps=eps,inverse=inverse)
         
-        if inverse:
-            imgs = idct(img_dct/g12_dct,axis=d,type=1)
-       
-        else:
-            imgs = idct(img_dct*g12_dct,axis=d,type=1)
-            
-        #for not_d in other_dims:
-        #    imgs = idct(imgs,axis=not_d,type=1)
-            
-    return imgs
-
 def ST_ndim_DCT_by_FFT(imgs, sigma, eps=0.,inverse=False):
     # automatic d-dimensional standardizing transform
     # via FFT. Uses per-axis mirroring to reduce edge discontinuities
