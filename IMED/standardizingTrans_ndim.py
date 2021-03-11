@@ -5,7 +5,6 @@ from scipy.fft import dct, idct
 import jax.numpy as jnp
 from scipy.fft import rfftn, irfftn, fftfreq,rfftfreq
 
-
 NA = np.newaxis
 
 def axis_split(A,axis):
@@ -15,7 +14,7 @@ def axis_split(A,axis):
 def ST_1dim_DCT(Img,sigma,d=0,eps=0,inverse=False):
     # Gaussian in k-space
     k_d     = np.linspace(0,np.pi,Img.shape[d])
-    g12_dct = np.exp(- k_d**2*sigma**2/4) + eps
+    g12_dct = (np.exp(- k_d**2*sigma**2/4) + eps) / (1+eps)
 
     # Transform to k-space
     img_dct = dct(Img, axis=d,type=1).reshape( axis_split(Img,d) )
@@ -30,6 +29,8 @@ def ST_1dim_DCT(Img,sigma,d=0,eps=0,inverse=False):
     return Img_folded.reshape(Img.shape)
     
 def ST_1dim_FFT(Img,sigma,d=0,eps=0,inverse=False,jax_backend=False):   
+    if jax_backend:
+        import jax.numpy as np
     # Transform to k-space
     #img_fft = rfftn(Img)
     if jax_backend:
@@ -42,13 +43,13 @@ def ST_1dim_FFT(Img,sigma,d=0,eps=0,inverse=False,jax_backend=False):
     
     # if last axis, need other k definition for rfft
     if d == Img.ndim-1:
-        k_d = rfftfreq(2*fft_shape[d]-1)*2*jnp.pi
-        if Img.dtype == jnp.float32:
-            k_d = jnp.float32(k_d)
+        k_d = rfftfreq(2*fft_shape[d]-1)*2*np.pi
+        if Img.dtype == np.float32:
+            k_d = np.float32(k_d)
     else:
-        k_d = fftfreq(fft_shape[d])*2*jnp.pi  
-        if Img.dtype == jnp.float32:
-            k_d = jnp.float32(k_d)
+        k_d = fftfreq(fft_shape[d])*2*np.pi  
+        if Img.dtype == np.float32:
+            k_d = np.float32(k_d)
             
     # Gaussian in k-space
     g12_fft = np.exp(- k_d**2*sigma**2/4) + eps
@@ -72,7 +73,7 @@ def ST_ndim_DCT(imgs,sigma,eps=0.,inverse=False):
     # noise amplification when deconvolving
     shape = imgs.shape
     dims     = len(shape)
-    all_dims = range(dims)
+    all_dims = imgs.ndim
     
     
     # Make sigma d-dimensional if not already
@@ -84,7 +85,7 @@ def ST_ndim_DCT(imgs,sigma,eps=0.,inverse=False):
         sigma = np.ones(dims)*sigma
         
     # do convolution, axis by axis
-    for d in range(dims):
+    for d in all_dims:
         if sigma[d]==0:
             #convolution has no effect
             continue
@@ -94,30 +95,35 @@ def ST_ndim_DCT(imgs,sigma,eps=0.,inverse=False):
             continue
         
         imgs = ST_1dim_DCT(Img=imgs,sigma=sigma[d],d=d,eps=eps,inverse=inverse)
+    
+    return imgs
         
         
-def ST_DCT_by_FFT(imgs, sigma, eps=0.,inverse=False,jax_backend=True):
+def ST_ndim_DCT_by_FFT(imgs, sigma, eps=0.,inverse=False,jax_backend=False):
     # automatic d-dimensional standardizing transform
     # via FFT. Uses per-axis mirroring to reduce edge discontinuities
     # eps is an optional constant added to the OTF to reduce  
     # noise amplification when deconvolving
+    if jax_backend:
+        import jax.numpy as np
 
-    orig_shape    = imgs.shape
-    dims     = len(orig_shape)
-    all_dims = range(dims)
+    orig_shape  = imgs.shape
+    dims        = imgs.ndim
 
-    # Make sigma d-dimensional if not already
+    # Make sigma d-dimensional if not already        
     if isinstance(sigma, (list, tuple, np.ndarray)):
         # if multiple sigmas are given, they must match number of axes
+        if hasattr(sigma,'shape') and len(sigma.shape)==0:
+            #probably dealing with scalar in jax DeviceArray
+            sigma = np.ones(dims)*sigma      
         assert len(sigma) == dims
     else:
         #if sigma is a scalar, it will be used for all axes
         sigma = np.ones(dims)*sigma
-    
+        
     for d in range(dims):
-        if sigma[d]==0:
-            #convolution has no effect
-            continue        
+        print(f'Running at axis {d}')
+
         if orig_shape[d]<3:
             print(f'Skipping dimension d={d} with size {orig_shape[d]}')
             #cant do convolution along this axis 
@@ -137,13 +143,13 @@ def ST_DCT_by_FFT(imgs, sigma, eps=0.,inverse=False,jax_backend=True):
     return imgs    
  
 def ST_ndim_FFT(imgs, sigma, eps=0.,inverse=False,jax_backend=False):
-    # automatic d-dimensional standardizing transform
+    # automatic d-dimensional stalenndardizing transform
     # via FFT. Uses per-axis mirroring to reduce edge discontinuities
     # eps is an optional constant added to the OTF to reduce  
     # noise amplification when deconvolving
-    orig_shape    = imgs.shape
-    dims     = len(orig_shape)
-    all_dims = range(dims)
+    orig_shape  = imgs.shape
+    dims        = imgs.ndim
+    all_dims    = range(dims)
     
     # Make sigma d-dimensional if not already
     if isinstance(sigma, (list, tuple, np.ndarray)):
