@@ -94,9 +94,11 @@ def ST_ndim_DCT(imgs,sigma,eps=0.,inverse=False):
             continue
         
         imgs = ST_1dim_DCT(Img=imgs,sigma=sigma[d],d=d,eps=eps,inverse=inverse)
+    
+    return imgs
         
         
-def ST_DCT_by_FFT(imgs, sigma, eps=0.,inverse=False,jax_backend=True):
+def ST_ndim_DCT_by_FFT(imgs, sigma, eps=0.,inverse=False,jax_backend=True):
     # automatic d-dimensional standardizing transform
     # via FFT. Uses per-axis mirroring to reduce edge discontinuities
     # eps is an optional constant added to the OTF to reduce  
