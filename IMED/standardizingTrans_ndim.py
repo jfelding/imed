@@ -59,9 +59,9 @@ def ST_1dim_FFT(Img,sigma,d=0,eps=0,inverse=False,jax_backend=False):
         Img_folded_k = img_fft * g12_fft[NA,:,NA]
     print()
     if jax_backend:
-        Img_folded = jnp.fft.irfftn(Img_folded_k.reshape(fft_shape))
+        Img_folded = jnp.fft.irfftn(Img_folded_k.reshape(fft_shape),s=Img.shape)
     else:
-        Img_folded = irfftn(Img_folded_k.reshape(fft_shape))
+        Img_folded = irfftn(Img_folded_k.reshape(fft_shape),s=Img.shape)
 
     return Img_folded.reshape(Img.shape)    
     
@@ -98,7 +98,7 @@ def ST_ndim_DCT(imgs,sigma,eps=0.,inverse=False):
     return imgs
         
         
-def ST_ndim_DCT_by_FFT(imgs, sigma, eps=0.,inverse=False,jax_backend=True):
+def ST_DCT_by_FFT(imgs, sigma, eps=0.,inverse=False,jax_backend=True):
     # automatic d-dimensional standardizing transform
     # via FFT. Uses per-axis mirroring to reduce edge discontinuities
     # eps is an optional constant added to the OTF to reduce  
