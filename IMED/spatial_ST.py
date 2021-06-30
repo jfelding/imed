@@ -1,6 +1,6 @@
 import numpy as np
 
-def ST_fullMat(imgs,sigma,eps):
+def ST_fullMat(imgs,sigma,inverse=False):
     # This is created by Niklas Heim / James Avery, and bugfixed by Jacob Felding
     # Purposefully not M, N
 
@@ -33,15 +33,20 @@ def ST_fullMat(imgs,sigma,eps):
     
     # Eigenvalue decomposition
     #G_sqrt  = np.dot(V, s[:,None]*V.T)
-    VTS = s[:,None]*V.T
+    
+    if inverse:
+        VTS = -s[:,None]*V.T
+    else:
+        VTS = s[:,None]*V.T
+    
     
     del G, P
     #G_sqrt = #
-    return np.array([np.dot(V, np.dot(VTS,z.reshape(-1))) + eps for z in imgs]).reshape(-1,N,M)
+    return np.array([np.dot(V, np.dot(VTS,z.reshape(-1))) for z in imgs]).reshape(-1,N,M)
 
 
 
-def ST_sepMat(imgs,sigma,eps):
+def ST_sepMat(imgs,sigma,inverse=False):
     '''Implements standardizing transform of image sequence using kronecker product matrix separation'''
     
     # Make sigma 2-dimensional if not already
@@ -68,7 +73,7 @@ def ST_sepMat(imgs,sigma,eps):
     
     # Create G decompositions such that G = np.kron(G_x,G_y)
     # This way we store NxN, MxM matrices, not NMxNM
-    G_x =  1 / (np.sqrt((2 * np.pi ))*sigma[0]) * np.exp(- P_x / (2 * sigma[0]**2)) 
+    G_x =  1 / (np.sqrt((2 * np.pi ))*sigma[0]) * np.exp(- P_x / (2 * sigma[0]**2))
     G_y =  1 / (np.sqrt((2 * np.pi ))*sigma[0]) * np.exp(- P_y / (2 * sigma[1]**2)) 
     
     # Determine eigenvectors and of G using that G = np.kron(G_x,G_y)
@@ -85,8 +90,13 @@ def ST_sepMat(imgs,sigma,eps):
     # we need matrix G^(1/2) Such that G = G^(1/2)G^(1/2)
     # Again decomposition allows G^(1/2) = np.kron(G_sqrt_x,G_sqrt_y)
     # Below, use eigendecomposition of G to construct G_sqrt_x, G_sqrt_y
-    G_sqrt_x = np.dot(eigvecs_Gx, np.sqrt(eigvals_Gx)[:,None]*eigvecs_Gx.T) + eps
-    G_sqrt_y = np.dot(eigvecs_Gy, np.sqrt(eigvals_Gy)[:,None]*eigvecs_Gy.T) + eps
-    
-    #return np.dot(G_sqrt_x,np.dot(imgs,G_sqrt_y))
+
+       
+    if inverse:
+        G_sqrt_x = np.dot(eigvecs_Gx, -np.sqrt(eigvals_Gx)[:,None]*eigvecs_Gx.T) 
+        G_sqrt_y = np.dot(eigvecs_Gy, -np.sqrt(eigvals_Gy)[:,None]*eigvecs_Gy.T)
+    else:
+        G_sqrt_x = np.dot(eigvecs_Gx, np.sqrt(eigvals_Gx)[:,None]*eigvecs_Gx.T) 
+        G_sqrt_y = np.dot(eigvecs_Gy, np.sqrt(eigvals_Gy)[:,None]*eigvecs_Gy.T) 
+
     return [np.dot(G_sqrt_x,np.dot(z,G_sqrt_y)) for z in imgs]
