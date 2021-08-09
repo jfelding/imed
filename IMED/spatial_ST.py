@@ -16,6 +16,7 @@ def ST_fullMat(imgs,sigma,inverse=False):
         N, M = imgs.shape[1:]
     else:
         N, M = imgs.shape
+        imgs = np.expand_dims(imgs,axis=0)
     
     X = np.arange(M,dtype=imgs.dtype)
     Y = np.arange(N,dtype=imgs.dtype)
@@ -42,8 +43,6 @@ def ST_fullMat(imgs,sigma,inverse=False):
     else:
         VTS = s[:,None]*V.T
     
-    
-    del G, P
     return np.array([np.dot(V, np.dot(VTS,z.reshape(-1))) for z in imgs]).reshape(-1,N,M)
 
 
