@@ -1,4 +1,5 @@
 import numpy as np
+from numpy import pi, prod, exp, ones, ndarray, asarray
 from scipy.fft import dct, idct
 from scipy.fft import rfftn, irfftn, fftfreq, rfftfreq
 
@@ -8,26 +9,36 @@ NA = np.newaxis
 def axis_split(A, axis):
     """helper function to avoid unnecessary copy/numpy.repeat"""
     (Am, Ai, An) = (
-        int(np.prod(A.shape[:axis])),
+        int(prod(A.shape[:axis])),
         A.shape[axis],
-        int(np.prod(A.shape[axis + 1 :])),
+        int(prod(A.shape[axis + 1 :])),
     )
     return (Am, Ai, An)
+
+
+def g12(k_d, sigma, eps):
+    """
+    Square root of fourier transformed Gaussian.
+    Used in both FFT and DCT context where sampled frequencies k_d
+    are configured outside of this function.
+    when eps is small, positive constant, inverse ST is feasible.
+    """
+    return (exp(-(k_d ** 2) * sigma ** 2 / 4) + eps) / (1 + eps)
 
 
 def DCT_1dim(Img, sigma, axis=0, eps=0, inv=False):
     """Perform ST symmetric convolution along axis `axis`"""
     # Sample sqrt of Gaussian in k-space
-    k_d = np.linspace(0, np.pi, Img.shape[axis], dtype=Img.dtype)
-    g12_dct = (np.exp(-(k_d ** 2) * sigma ** 2 / 4) + eps) / (1 + eps)
+    k_d = np.linspace(0, pi, Img.shape[axis], dtype=Img.dtype)
+    filter = g12(k_d, sigma, eps)
 
     # Transform to k-space
     img_dct = dct(Img, axis=axis, type=1).reshape(axis_split(Img, axis))
 
     if inv:
-        Img_folded_k = img_dct / g12_dct[NA, :, NA]
+        Img_folded_k = img_dct / filter[NA, :, NA]
     else:
-        Img_folded_k = img_dct * g12_dct[NA, :, NA]
+        Img_folded_k = img_dct * filter[NA, :, NA]
 
     Img_folded = idct(Img_folded_k, axis=1, type=1)
 
@@ -44,22 +55,22 @@ def FFT_1dim(Img, sigma, axis=0, eps=0, inv=False):
 
     # if last axis, need other k definition for rfft
     if axis == Img.ndim - 1:
-        k_d = rfftfreq(2 * fft_shape[axis] - 1) * 2 * np.pi
+        k_d = rfftfreq(2 * fft_shape[axis] - 1) * 2 * pi
         # ensure correct dtype
-        k_d = np.asarray(k_d, dtype=Img.dtype)
+        k_d = asarray(k_d, dtype=Img.dtype)
 
     else:
-        k_d = fftfreq(fft_shape[axis]) * 2 * np.pi
+        k_d = fftfreq(fft_shape[axis]) * 2 * pi
         # ensure correct dtype
-        k_d = np.asarray(k_d, dtype=Img.dtype)
+        k_d = asarray(k_d, dtype=Img.dtype)
 
     # Gaussian in k-space
-    g12_fft = (np.exp(-(k_d ** 2) * sigma ** 2 / 4) + eps) / (1 + eps)
+    filter = g12(k_d, sigma, eps)
 
     if inv:
-        Img_folded_k = img_fft / g12_fft[NA, :, NA]
+        Img_folded_k = img_fft / filter[NA, :, NA]
     else:
-        Img_folded_k = img_fft * g12_fft[NA, :, NA]
+        Img_folded_k = img_fft * filter[NA, :, NA]
 
     Img_folded = irfftn(Img_folded_k.reshape(fft_shape), s=Img.shape)
 
@@ -75,12 +86,12 @@ def DCT_ST(imgs, sigma, eps=0, inv=False):
     dims = len(shape)
 
     # Make sigma d-dimensional if not already
-    if isinstance(sigma, (list, tuple, np.ndarray)):
+    if isinstance(sigma, (list, tuple, ndarray)):
         # if multiple sigmas are given, they must match number of axes
         assert len(sigma) == dims
     else:
         # if sigma is a scalar, it will be used for all axes
-        sigma = np.ones(dims) * sigma
+        sigma = ones(dims) * sigma
 
     # do convolution, axis by axis
     for axis in range(dims):
@@ -107,12 +118,12 @@ def DCT_by_FFT_ST(imgs, sigma, eps=0, inv=False):
     orig_shape = imgs.shape
     dims = len(orig_shape)
     # Make sigma d-dimensional if not already
-    if isinstance(sigma, (list, tuple, np.ndarray)):
+    if isinstance(sigma, (list, tuple, ndarray)):
         # if multiple sigmas are given, they must match number of axes
         assert len(sigma) == dims
     else:
         # if sigma is a scalar, it will be used for all axes
-        sigma = np.ones(dims) * sigma
+        sigma = ones(dims) * sigma
 
     for axis in range(dims):
         if sigma[axis] == 0:
@@ -149,12 +160,12 @@ def FFT_ST(imgs, sigma, eps=0, inv=False):
     dims = len(orig_shape)
 
     # Make sigma d-dimensional if not already
-    if isinstance(sigma, (list, tuple, np.ndarray)):
+    if isinstance(sigma, (list, tuple, ndarray)):
         # if multiple sigmas are given, they must match number of axes
         assert len(sigma) == dims
     else:
         # if sigma is a scalar it will be used for all axes
-        sigma = np.ones(dims) * sigma
+        sigma = ones(dims) * sigma
 
     for axis in range(dims):
         if sigma[axis] == 0:
