@@ -70,7 +70,7 @@ By chopping up the transforms into smaller chunks, SciPy supports parallelizatio
     
     from scipy import fft
     with fft.set_workers(-1):
-        standardizingTrans(imgs,sigma,method,eps=0,inverse=False)
+        imgs_ST = IMED.ST(volume, sigma)
         
 When the number of workers is set to a negative integer (like above), the number of workers is set to os.cpu_count().
 
@@ -82,7 +82,7 @@ SciPy also supports computations using another backend. For example, we can use 
         #faster if we enable cache using pyfftw
         pyfftw.interfaces.cache.enable()
         # perform standardizing transform using frequency method of your choice
-        imgs_ST = standardizingTrans(imgs,sigma=(10.,20.),method='DCT',eps=0,inverse=False)
+        imgs_ST = IMED.ST(volume, sigma)
         
 ## References
 [Bing Sun, Jufu Feng, and Guoping Wang. “On the Translation-Invariance of Image
