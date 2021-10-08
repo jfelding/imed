@@ -27,7 +27,7 @@ In the future, an even more efficient finite-support version of the transforms w
 ### Classification
 In [On the Euclidean distance of images](https://ieeexplore.ieee.org/document/1453520) [2] the IMED was presented for ED-compatible classification and clustering methods. These only require a 'forward' transform to perform computations on the altered data set or images. 
 
-Methods include: Any classification method applying an 'L2 loss function', Principal Component Analysis (PCA), Linear Discriminant Analysis (LDA), SVMs, Atificial Neural Networks, k-nearest neighbours, clustering methods.
+Methods include: Any classification method applying an 'L2 loss function', Principal Component Analysis (PCA), Linear Discriminant Analysis (LDA), SVMs, Neural Networks, k-nearest neighbours, clustering methods.
 
 ### Regression Problems
 This package extends the IMED to use in regression problems. These problems require the default forward ST to be performed on the dataset. This is used an input in a predictor model that uses L2 loss (traditionally), and the predictions are 'blurred' like the augmented dataset. These predictions may not be satisfactory. 
