@@ -10,6 +10,7 @@ With the original 'sharper' images, the ED between these two images is large, si
 <p align="center">
 <img src="https://raw.githubusercontent.com/jfelding/IMED/assets/readme_assets/L2_images/L2_imgs.png" alt="Forward transform of 2D images alter the L2 distance, reduces noise" width="500px" style="horisontal-align:middle">
 </p>
+
 ## The IMED package
 This package contains efficient python implementations of the IMED (distance, transforms) and adds robust inverse transforms for first-ever utility in regression problems e.g. spatio-temporal forecasting.
 
