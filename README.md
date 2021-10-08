@@ -52,10 +52,14 @@ The standardizing transform is a convolution-based method. It can therefore is s
 In some problems, e.g. spatio-temporal ones, it is often advisible to use _different_ values of the Gaussian 'blurring parameter' `sigma` along some axes (time vs. spatial axes). For n-dimensional volumes for which the same value e.g. `sigma = 1` must not be used, an arraylike `sigma` can be passed with axis-per-axis values. E.g. `sigma = [0., 1., 1.]` may be proper for a 3D data volume (T, M, N) of T images. `sigma = [0.5., 1., 1.]` may be used for 'blurring' along the temporal axis, too.
 
 ## Tunable Parameters
-Sigma. Can be different along all axes, or the same. Skipped if 0.
+
+* **`sigma`**: (int or array-like) Gaussian 'blurring' parameter (real-space interpretation). If int: ST uses same `sigma` value along all axes. If 0: ST is skipped along that axis (array-like argument). Each value of `sigma` defines a new IMED loss function. _IMED loss values should not be compared using different values of sigma_.
+* **`inv`**:  (bool.) Whether to perform the forward (False) transform or backwards (True). Other parameters should be matched when an inverse transform is required following the forward ST.
+* **`eps`** Should only be used when an inverse transform is required. In these case, use the same, small value of `eps` in the forward and backwards transforms.
+
 
 ## Getting Started with the Standardizing Transform
-### Installation**
+### Installation
 Install the latest release from pypi:
 
     pip install IMED
