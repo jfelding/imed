@@ -46,6 +46,13 @@ img_predicted = ST(img_predicted_ST, sigma=2, eps=1e-2, inv=True)
 ```
 The `eps` parameter is crucial in both the forward and backwards pass and must have the same value small, positive value in the two. Problems for which the inverse transform is not needed do not require `eps` to be non-zero. `eps` allows robust deconvolution. If it is not used, the inverse predictions may completely unusable due to noise amplification in inverse filtering.  
 
+Below is an example of restoring a forward ST transformed sequence (right) to one that is almost identical to the original image in the sequence (left).
+The forward transform had non-zero sigma only along the temporal axis in which the 'L2' motif moved around along the spatial axes.
+<p align="center">
+<img src="https://raw.githubusercontent.com/jfelding/IMED/assets/readme_assets/L2_inverse_temporal_transform/l2_inverse_temporal.png" alt="Restoration using inverse standardizing transform along temporal axis." width="750px" style="horisontal-align:middle">
+</p>
+
+
 ### _n_-Dimensional Problems
 The standardizing transform is a convolution-based method. It can therefore is sensible to perform it along any axes of correlation, and this is implemented by `ST`. 
 
