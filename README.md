@@ -34,15 +34,35 @@ In the future, an even more efficient finite-support version of the transforms w
 
 ## Backward Standardizing Transform
 
-## Distance Calculation
-
 ## Tunable Parameters
+Sigma. Can be different along all axes, or the same. Skipped if 0.
 
 ## Getting Started with the Standardizing Transform
-**Installation**:
+### Installation**
 Install the latest release from pypi:
 
     pip install IMED
+
+### Image and Volume Standardizing Transforms
+The standardizing transform as pictured in the introduction is easily computed for a single image, image sequence or general data volume.
+The easiest way to get started is to run:
+
+```ST(volume, sigma, inv=False, eps=0, method="DCT")```
+
+The function outputs a volume with the same shape that has been transformed according to the selected arguments.
+
+In _regression problems_ the IMED is utilized as a loss function by transforming the data using a forward ST-transform with e.g. `eps=1e-2` (robustly). The prediction method is then applied to the transformed data, and outputs such 'blurred' predictions.
+When these are achived, the predictions can be 'unblurred' by performing the _inverse transform_:
+
+```ST(volume, sigma, inv=False, eps=1e-2, method="DCT")```
+
+When one expects that an inverse transform of 'blurred' predictions will be necessary, the **same values of `eps` should be chosen in the forward and backwards standardizing transforms!**
+
+### Distance Calculation
+`IMED.distance(volume1, volume2, sigma=1)` computes the IMED similarity score on two identically-shaped data volumes. It may be a single image, a collection of images, or a high-dimensional volume. See the docstring for more details. The function allows the computation of a single volume-wide similarity score, or an array of similarity scores to be computed.
+
+The function first performs the ST on the data volumes and compares the transformed volumes using the ED afterwards.
+
 
 ## Parallelization of frequency methods and backend change
 The IMED methods are implemented using the `scipy.fft` module.
