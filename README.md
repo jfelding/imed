@@ -1,16 +1,42 @@
 # IMage Euclidean Distance (IMED)
 
-Matrix and Frequency implementation based on https://link.springer.com/content/pdf/10.1186/s40535-015-0014-6.pdf
+## Introduction
+The IMED is the Euclidean distance (ED) applied to a transformed version of an image or n-dimensional volume that has image-like correlation along axes. It solves some of the shortcommings of using the  pixel-wise Euclidean distance in classification or regression problems. Small displacements do not have as large an impact on the similarity measure when IMED is used over the ED. 
 
-The Image Euclidean Distance is found by transforming images or other continous data using a convolution operation, then taking the standard pixel-wise Euclidean distance between the image. This transform is referred to as the 'Standardizing Transform', or ST. 
+Below, two binary 2D images are displayed, each in two versions. One image has white pixels that are _slightly displaced_ compared to the other.
+With the original 'sharper' images, the ED between these two images is large, since ED does not take into acocunt any surroundings of each pixel. This is despite the obvious similarity to the naked eye. The 'blurred' versions are standardizing transformed (ST) with a certain Gaussian filter. The displacement is not penalized as harshly by the ED on these images. 
 
-This package contains five implementations of the standardizing transform. Two of them ('full', 'sep') are matrix methods that apply linear convolution, while the remainder are frequency/DFT methods ('fft', 'dct', 'dct_by_fft'). the 'fft' performs the transform using circular convolution, while 'dct' and 'dct_by_fft' give identical results and apply symmetric convolution.
+**This is the IMED: The Euclidean distance on ST images.**
+<p align="center">
+<img src="https://raw.githubusercontent.com/jfelding/IMED/assets/readme_assets/L2_images/L2_imgs.png" alt="Forward transform of 2D images alter the L2 distance, reduces noise" width="500px" style="horisontal-align:middle">
+</p>
+## The IMED package
+This package contains efficient python implementations of the IMED (distance, transforms) and adds robust inverse transforms for first-ever utility in regression problems e.g. spatio-temporal forecasting.
 
-The most natural boundaries are often obtained using 'dct' and 'dct_by_fft' methods. The linear convolution methods tend to underestimate the boundaries, as they correspond to zero-padding the image berfore applying a certain Gaussian filter. 'fft' tends to give periodic boundary effects.
+`IMED.legacy` contains legacy transforms, i.e. slower or less useful versions of the IMED, for historical reasons.
 
-The frequency methods apply an n-dimensional transform and so can be used for continous signals with any number of dimensions. The matrix methods are 2D only.
+Implementations are based on and extend the work of [On the translation‑invariance of image 
+distance metric](https://link.springer.com/content/pdf/10.1186/s40535-015-0014-6.pdf) (Bing Sun, Jufu Feng and Guoping Wang, 2015, Springer).
 
-The 'full' method is the original method, and is only here for completeness. It consumes a lot of memory, and is very slow. Its use is not recommended.
+The ST is a convolution-based transformation. This package therefore implements the transforms in frequency space. Fourier Transform (FFT) and Discrete Cosine Transform (DCT) methods are available, with slightly different edge effects as a result. The DCT is recommended for natural images since it performs _symmetric convolution_. The frequency-based methods allow parallelization and distributed computations if needed.
+
+In the future, an even more efficient finite-support version of the transforms will be added (see [this issue](https://github.com/jfelding/IMED/issues/1))
+
+## Use Cases
+
+### Classification
+
+### Regression Problems
+
+### _n_-Dimensional Problems
+
+## Forward Standardizing Transform
+
+## Backward Standardizing Transform
+
+## Distance Calculation
+
+## Tunable Parameters
 
 ## Getting Started with the Standardizing Transform
 **Installation**:
@@ -18,33 +44,9 @@ Install the latest release from pypi:
 
     pip install IMED
 
-To get started, IMED.ST_all contains a wrapper function standardizingTrans(imgs,sigma,method,eps=0,inverse=False)
-Here is the doc:
-
-    Takes n-dimensional data and returns the n-dimensional Standardized Transform.
-    Methods 'full' and 'sep' are 2D methods only.
-    
-    Parameters:
-    * imgs is a signal 
-    * sigma (float)/array-like determines the zero-mean Gaussian that defines the IMED matrix G - not G^(1/2).
-      If sigma is array-like it should contain the same number of values as the number of dimensions of imgs.
-      
-    * eps (float) is an optional small parameter to offset the Gaussian so that it is always numerically non-zero. 
-    This can allow deconvolution without significant noise amplification.
-    * method (string) is the method used to perform the standardizing transform. Choose between:
-     1. **'full':** Full Dense Matrix $z_{ST}= G^{1/2}z$ using eigenvalue decomposition
-     2. **'sep'** Separated Dense Matrices $z_{ST}= G_x^{1/2}z G_y^{1/2}$ using eigenvalue decomposition 
-     3. **'fft'**: Performs circular convolution using discrete fourier transforms of image and Gaussian 
-     without enforcing symmetric boundary conditions
-     4. **'dct_by_fft'**: Performs circular convolution using discrete fourier transforms of mirrored image and 
-     Gaussian to ensure symmetric boundary conditions and reduce edge effects from 'Gibbs-like phenomenon'
-     5. **'dct'**: Performs symmetric convolution using discrete cosine transform of image, which is identical to
-     6. the 'dct_by_fft  method, but should be more efficient
-    """
-
 ## Parallelization of frequency methods and backend change
-The frequency methods of the standardizing transform ('fft', 'dct' and 'dct_by_fft') are implemented using scipy.fft.
-By chopping up the transforms into smaller chunks, scipy supports parallelization by specifying the _workers_ environment variable:
+The IMED methods are implemented using the `scipy.fft` module.
+By chopping up the transforms into smaller chunks, SciPy supports parallelization by specifying the _workers_ environment variable:
     
     from scipy import fft
     with fft.set_workers(-1):
@@ -52,7 +54,7 @@ By chopping up the transforms into smaller chunks, scipy supports parallelizatio
         
 When the number of workers is set to a negative integer (like above), the number of workers is set to os.cpu_count().
 
-Scipy also supports computations using another backend. For example, we can use pyFFTW as a backend like so: 
+SciPy also supports computations using another backend. For example, we can use [pyFFTW](http://pyfftw.readthedocs.io/en/latest/) as backend like so: 
      
      from scipy import fft
      import pyfftw
@@ -62,5 +64,11 @@ Scipy also supports computations using another backend. For example, we can use 
         # perform standardizing transform using frequency method of your choice
         imgs_ST = standardizingTrans(imgs,sigma=(10.,20.),method='DCT',eps=0,inverse=False)
         
-## Inverse Transforms
-In principle, the frequency methods allow simple inverse ST by inverse filtering, and this can be triggered using the *inverse=True* flag. However, in the present of any noise, catastrophic noise amplification can occur, especially since the filter used in this transform is Gaussian and tends towards zero. The effect will increase with sigma. If an inverse transformation is necessary, it is recommended to use the **eps** parameter to add a small constant like 1e-5 to the filter in frequency space, i.e. the optical transfer function. The **eps** parameter is also available for (forward) standardizing transforms.
+## References
+[Bing Sun, Jufu Feng, and Guoping Wang. “On the Translation-Invariance of Image
+Distance Metric”. In: Applied Informatics 2.1 (Nov. 25, 2015), p. 11.
+0089.
+ISSN :
+2196-
+DOI : 10.1186/s40535- 015- 0014- 6 . URL : https://doi.org/10.1186/
+s40535-015-0014-6](https://link.springer.com/content/pdf/10.1186/s40535-015-0014-6.pdf)
