@@ -1,5 +1,5 @@
 from numpy import sqrt
-from frequency import DCT_ST, FFT_ST
+from IMED.frequency import DCT_ST, FFT_ST
 
 
 def ST(
@@ -63,9 +63,9 @@ def ST(
     if imed scores are needed see imed.euclidean() and imed.distance().
     """
     if method == "DCT":
-        volume_ST = DCT_ST(volume, sigma, eps, inv=False)
+        volume_ST = DCT_ST(volume, sigma, eps, inv=inv)
     elif method == "FFT":
-        volume_ST = FFT_ST(volume, sigma, eps, inv=False)
+        volume_ST = FFT_ST(volume, sigma, eps, inv=inv)
     else:
         raise NameError(
             f"`method` must be 'DCT' or 'FFT' not {method}.\n\
