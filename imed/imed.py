@@ -1,8 +1,7 @@
-from numpy import sqrt
-from IMED.frequency import DCT_ST, FFT_ST
+from imed.frequency import DCT_ST, FFT_ST
 
 
-def ST(
+def transform(
     volume,
     sigma,
     inv=False,
@@ -43,7 +42,7 @@ def ST(
 
     method: str,
     Method of performing standardizing tranform: 'FFT' or 'DCT' (default).
-    Two options provide different edge effects. DCT often provides more natural
+    Two options providsqrte different edge effects. DCT often provides more natural
     boundary effects in image processing and similar application.
 
     inv: bool.,
@@ -111,7 +110,7 @@ def euclidean(volume1, volume2, output_dims=0):
 
     sq_deviations = (volume1 - volume2) ** 2
 
-    euclid_distances = sqrt(
+    euclid_distances = np.sqrt(
         sq_deviations.sum(axis=tuple(range(input_dims)[-(input_dims - output_dims) :]))
     )
 
@@ -134,7 +133,7 @@ def distance(volume1, volume2, sigma=1, method="DCT", eps=0, output_dims=0):
     output_dims: int
     Expected number of dimensions of output distance.
 
-    Remaining parameters are defined by imed.ST()
+    Remaining parameters are defined by imed.transform()
 
     Returns
     -------
@@ -142,8 +141,8 @@ def distance(volume1, volume2, sigma=1, method="DCT", eps=0, output_dims=0):
     Image Euclidean Distances defined according to imed.euclidean()
     """
 
-    volume1_ST = ST(volume1, sigma, False, eps, method)
-    volume2_ST = ST(volume2, sigma, False, eps, method)
+    volume1_ST = transform(volume1, sigma, False, eps, method)
+    volume2_ST = transform(volume2, sigma, False, eps, method)
 
     imeds = euclidean(volume1_ST, volume2_ST, output_dims)
 
