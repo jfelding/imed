@@ -1,5 +1,22 @@
 # IMage Euclidean Distance (IMED)
 
+## Table of Contents
+
+- [IMage Euclidean Distance (IMED)](#image-euclidean-distance-imed)
+  - [Introduction](#introduction)
+  - [The IMED package](#the-imed-package)
+  - [Use Cases](#use-cases)
+    - [Classification](#classification)
+    - [Regression Problems](#regression-problems)
+    - [_n_-Dimensional Problems](#_n_-dimensional-problems)
+  - [Tunable Parameters](#tunable-parameters)
+  - [Getting Started with the Standardizing Transform](#getting-started-with-the-standardizing-transform)
+    - [Installation](#installation)
+    - [Image and Volume Standardizing Transforms](#image-and-volume-standardizing-transforms)
+    - [Distance Calculation](#distance-calculation)
+  - [Parallelization of frequency methods and backend change](#parallelization-of-frequency-methods-and-backend-change)
+  - [References](#references)
+
 ## Introduction
 The IMED is the Euclidean distance (ED) applied to a transformed version of an image or n-dimensional volume that has image-like correlation along axes. It solves some of the shortcommings of using the  pixel-wise Euclidean distance in classification or regression problems. Small displacements do not have as large an impact on the similarity measure when IMED is used over the ED. 
 
@@ -60,7 +77,7 @@ The forward transform had non-zero sigma only along the temporal axis in which t
 ### _n_-Dimensional Problems
 The standardizing transform is a convolution-based method. It can therefore is sensible to perform it along any axes of correlation, and this is implemented by `imed.transform`. 
 
-In some problems, e.g. spatio-temporal ones, it is often advisable to use _different_ values of the Gaussian 'blurring parameter' `sigma` along some axes (time vs. spatial axes). For n-dimensional volumes for which the same value e.g. `sigma = 1` must not be used, an array-like `sigma` can be passed with axis-per-axis values.  `sigma = [0., 1., 1.]` may be proper for a 3D data volume (T, M, N) of T images. `sigma = [0.5., 1., 1.]` may be used for 'blurring' along the temporal axis, too.
+In some problems, e.g. spatio-temporal ones, it is often advisable to use _different_ valStandardizingues of the Gaussian 'blurring parameter' `sigma` along some axes (time vs. spatial axes). For n-dimensional volumes for which the same value e.g. `sigma = 1` must not be used, an array-like `sigma` can be passed with axis-per-axis values.  `sigma = [0., 1., 1.]` may be proper for a 3D data volume (T, M, N) of T images. `sigma = [0.5., 1., 1.]` may be used for 'blurring' along the temporal axis, too.
 
 ## Tunable Parameters
 
@@ -94,7 +111,10 @@ imed.transform(volume, sigma, inv=True, eps=1e-2, method="DCT")
 
 When one expects that an inverse transform of 'blurred' predictions will be necessary, the **same values of `eps` should be chosen in the forward and backwards standardizing transforms!** `eps = 0` should be chosen when an inverse transform is not needed.
 
-### Distance Calculation
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->Distance Calculation
 
 To compute the IMED score between two volumes, one may compute:
 
