@@ -1,4 +1,5 @@
 from imed.frequency import DCT_ST, FFT_ST
+from numpy import sqrt
 
 
 def transform(
@@ -42,7 +43,7 @@ def transform(
 
     method: str,
     Method of performing standardizing tranform: 'FFT' or 'DCT' (default).
-    Two options providsqrte different edge effects. DCT often provides more natural
+    Two options provide different edge effects. DCT often provides more natural
     boundary effects in image processing and similar application.
 
     inv: bool.,
@@ -105,16 +106,18 @@ def euclidean(volume1, volume2, output_dims=0):
     # check that volume1 and volume2 have same shape
     assert volume1.shape == volume2.shape
     input_dims = volume1.ndim
+
     # check that output_dims is not larger than volume dimension
     assert output_dims <= input_dims
 
     sq_deviations = (volume1 - volume2) ** 2
 
-    euclid_distances = np.sqrt(
-        sq_deviations.sum(axis=tuple(range(input_dims)[-(input_dims - output_dims) :]))
-    )
+    if output_dims != input_dims:
+        sq_deviations = sq_deviations.sum(
+            axis=tuple(range(input_dims)[-(input_dims - output_dims) :])
+        )
 
-    return euclid_distances
+    return sqrt(sq_deviations)
 
 
 def distance(volume1, volume2, sigma=1, method="DCT", eps=0, output_dims=0):
