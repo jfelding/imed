@@ -1,5 +1,5 @@
 from imed.imed import (
-    ST,
+    transform,
     distance,
     euclidean,
 )  # expose imed module functions to top level
