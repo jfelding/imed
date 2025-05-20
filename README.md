@@ -26,7 +26,7 @@ With the original 'sharper' images, the ED between these two images is large, si
 **This is the IMED: The Euclidean distance evaluated on ST-images.**
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/jfelding/IMED/assets/readme_assets/L2_images/L2_imgs.png" alt="Forward transform of 2D images alter the L2 distance, reduces noise" width="500px" style="horisontal-align:middle">
+<img src="https://raw.githubusercontent.com/jfelding/imed/assets/readme_assets/L2_images/L2_imgs.png" alt="Forward transform of 2D images alter the L2 distance, reduces noise" width="500px" style="horisontal-align:middle">
 </p>
 
 ## The IMED package
@@ -39,7 +39,7 @@ distance metric](https://link.springer.com/content/pdf/10.1186/s40535-015-0014-6
 
 The ST is a convolution-based transformation. This package therefore implements the transforms in frequency space. Fourier Transform (FFT) and Discrete Cosine Transform (DCT) methods are available, with slightly different edge effects as a result. The DCT is recommended for natural images since it performs _symmetric convolution_. The frequency-based methods allow parallelization and distributed computations if needed.
 
-In the future, an even more efficient finite-support version of the transforms will be added (see [this issue](https://github.com/jfelding/IMED/issues/1))
+In the future, an even more efficient finite-support version of the transforms will be added (see [this issue](https://github.com/jfelding/imed/issues/1))
 
 ## Use Cases
 
@@ -70,7 +70,7 @@ The `eps` parameter is crucial in both the forward and backwards pass and must h
 Below is an example of restoring a forward ST transformed sequence (right) to one that is almost identical to the original image in the sequence (left).
 The forward transform had non-zero sigma only along the temporal axis in which the 'L2' motif moved around along the spatial axes.
 <p align="center">
-<img src="https://raw.githubusercontent.com/jfelding/IMED/assets/readme_assets/L2_inverse_temporal_transform/l2_inverse_temporal.png" alt="Restoration using inverse standardizing transform along temporal axis." width="750px" style="horisontal-align:middle">
+<img src="https://raw.githubusercontent.com/jfelding/imed/assets/readme_assets/L2_inverse_temporal_transform/l2_inverse_temporal.png" alt="Restoration using inverse standardizing transform along temporal axis." width="750px" style="horisontal-align:middle">
 </p>
 
 

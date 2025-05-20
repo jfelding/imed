@@ -1,3 +1,9 @@
+# PDM-specific files and directories
+__pypackages__/
+.pdm.toml
+.pdm-python
+.pdm-build/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
