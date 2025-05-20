@@ -33,7 +33,7 @@ jobs:
       run: pdm run pytest
 
     - name: Build distributions
-      run: pdm build --sdist --wheel --outdir dist/
+      run: pdm build --dest dist/
 
     - name: Publish to TestPyPI
       if: github.event_name == 'workflow_dispatch' && github.event.inputs.publish_target == 'test'
