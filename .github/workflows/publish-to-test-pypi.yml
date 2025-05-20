@@ -27,7 +27,8 @@ jobs:
       run: |
         curl -sSL https://pdm-project.org/install-pdm.py | python3 -
         pdm --version
-
+    - name: Install project dependencies
+      run: pdm install --dev
     - name: Run unit tests
       run: pdm run pytest
 
