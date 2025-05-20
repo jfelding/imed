@@ -1,20 +1,25 @@
-name: Publish Python 🐍 distributions
+name: Publish Python 🐍 distributions 📦 to PyPI and TestPyPI
 
 on:
   push:
     branches: [ main ]
     tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      publish_target:
+        description: 'Where to publish (test or prod)'
+        required: true
+        default: 'test'
 
 jobs:
   build-and-publish:
-    name: Build & Publish to TestPyPI/PyPI
-    runs-on: ubuntu-24.04
+    name: Build, Test & Publish to TestPyPI/PyPI
+    runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-
+    - uses: actions/checkout@master
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v1
       with:
         python-version: 3.10
 
@@ -30,16 +35,15 @@ jobs:
       run: pdm build --sdist --wheel --outdir dist/
 
     - name: Publish to TestPyPI
-      if: github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/')
+      if: github.event_name == 'workflow_dispatch' && github.event.inputs.publish_target == 'test'
       uses: pypa/gh-action-pypi-publish@v1.5.3
       with:
-        username: __token__
         password: ${{ secrets.TEST_PYPI_API_TOKEN }}
         repository_url: https://test.pypi.org/legacy/
 
     - name: Publish to PyPI
-      if: startsWith(github.ref, 'refs/tags/')
+      if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) ||
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.publish_target == 'prod')
       uses: pypa/gh-action-pypi-publish@v1.5.3
       with:
-        username: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+        password: ${{ secrets.PYPI_API_TOKEN }} 
