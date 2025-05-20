@@ -1,9 +1,41 @@
 [build-system]
-requires = [
-    "setuptools>=42",
-    "wheel",
-    "numpy",
-    "scipy>=1.4.0",
-    "matplotlib"
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[project]
+name = "imed"
+version = "0.3.0"
+description = "Image Euclidean Distance and Standardizing Transforms"
+authors = [
+    {name = "Jacob Ungar Felding", email = "jfelding@gmail.com"},
+    {name = "Jacob Felding", email = "jfelding@gmail.com"},
 ]
-build-backend = "setuptools.build_meta"
+dependencies = ["numpy>=2.2.6", "scipy>=1.15.3"]
+requires-python = ">=3.10"
+readme = "README.md"
+license = {text = "MIT"}
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+[project.urls]
+Homepage = "https://github.com/jfelding/imed"
+"Bug Tracker" = "https://github.com/jfelding/imed/issues"
+
+[tool.pdm]
+distribution = true
+
+[tool.pdm.build]
+includes = ["imed"]
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
+]
