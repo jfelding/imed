@@ -111,9 +111,20 @@ def DCT_by_FFT_ST(imgs, sigma, eps=0, inv=False):
     """
     Automatic n-dimensional standardizing transform
     with output like DCT_ST, but using FFT algorithm (periodic convolution).
+    This method involves mirroring and concatenating arrays, which is
+    memory-intensive for large inputs. For general DCT-based transforms,
+    `DCT_ST` is more memory and CPU efficient as it directly uses
+    optimized DCT implementations.
     eps is an optional constant added to the OTF to reduce
     noise amplification when inverse ST is needed
     """
+    import warnings
+    warnings.warn(
+        "DCT_by_FFT_ST is memory-intensive for large inputs due to temporary array creation. "
+        "Consider using DCT_ST for better performance and memory efficiency.",
+        UserWarning,
+        stacklevel=2
+    )
 
     orig_shape = imgs.shape
     dims = len(orig_shape)

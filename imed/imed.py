@@ -1,5 +1,5 @@
 from imed.frequency import DCT_ST, FFT_ST
-from numpy import sqrt
+import numpy as np
 
 
 def transform(
@@ -110,14 +110,11 @@ def euclidean(volume1, volume2, output_dims=0):
     # check that output_dims is not larger than volume dimension
     assert output_dims <= input_dims
 
-    sq_deviations = (volume1 - volume2) ** 2
-
     if output_dims != input_dims:
-        sq_deviations = sq_deviations.sum(
-            axis=tuple(range(input_dims)[-(input_dims - output_dims) :])
-        )
-
-    return sqrt(sq_deviations)
+        sum_axes = tuple(range(input_dims)[-(input_dims - output_dims) :])
+        return np.sqrt(np.sum(np.square(volume1 - volume2), axis=sum_axes))
+    else:
+        return np.sqrt(np.square(volume1 - volume2))
 
 
 def distance(volume1, volume2, sigma=1, method="DCT", eps=0, output_dims=0):
