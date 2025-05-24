@@ -15,6 +15,7 @@
     - [Image and Volume Standardizing Transforms](#image-and-volume-standardizing-transforms)
     - [Distance Calculation](#distance-calculation)
   - [Parallelization of frequency methods and backend change](#parallelization-of-frequency-methods-and-backend-change)
+  - [Performance Benchmarks](#performance-benchmarks)
   - [References](#references)
 
 ## Introduction
@@ -130,7 +131,7 @@ The function first performs the standardizing transform on the data volumes and 
 ## Parallelization of frequency methods and backend change
 The IMED methods are implemented using the `scipy.fft` module.
 By chopping up the transforms into smaller chunks, SciPy supports parallelization by specifying the _workers_ environment variable:
-    
+
 
 ```python
 from scipy import fft
@@ -155,6 +156,67 @@ SciPy also supports computations using another backend. For example, we can use 
     # perform standardizing transform using frequency method of your choice
     imgs_ST = imed.transform(volume, sigma)
 ```
+
+## Performance Benchmarks
+
+Performance benchmarks are available for different backends:
+
+- [PyFFTW Backend Report (v0.3.1)](benchmarks/reports/imed-0.3.1_backend=pyfftw/performance_report_imed-0.3.1_python-3.13.2.html)
+- [SciPy Backend Report (v0.3.1)](benchmarks/reports/imed-0.3.1_backend=scipy/performance_report_imed-0.3.1_python-3.13.2.html)
+
+### PyFFTW Backend (v0.3.1) - Execution Time Comparison
+<p align="center">
+<img src="benchmarks/reports/imed-0.3.1_backend=pyfftw/execution_time_comparison_log.png" alt="PyFFTW Backend Execution Time Comparison" width="700px" style="horisontal-align:middle">
+</p>
+
+### SciPy Backend (v0.3.1) - Execution Time Comparison
+<p align="center">
+<img src="benchmarks/reports/imed-0.3.1_backend=scipy/execution_time_comparison_log.png" alt="SciPy Backend Execution Time Comparison" width="700px" style="horisontal-align:middle">
+</p>
+
+### Backend Performance Comparison (v0.3.1)
+
+| Algorithm Name | PyFFTW Backend Time (v0.3.1) | SciPy Backend Time (v0.3.1) |
+|---|---|---|
+| DCT_by_FFT_ST (32, 32) | <span style="color: red;">0.736 ms</span> | <span style="color: green;">0.476 ms</span> |
+| DCT_by_FFT_ST (64, 64) | <span style="color: red;">1.183 ms</span> | <span style="color: green;">0.865 ms</span> |
+| DCT_by_FFT_ST (128, 128) | <span style="color: red;">2.673 ms</span> | <span style="color: green;">2.258 ms</span> |
+| DCT_by_FFT_ST (250, 250) | <span style="color: green;">4.249 ms</span> | <span style="color: red;">5.309 ms</span> |
+| DCT_by_FFT_ST (256, 256) | <span style="color: red;">4.501 ms</span> | <span style="color: green;">4.256 ms</span> |
+| DCT_by_FFT_ST (500, 500) | <span style="color: green;">16.214 ms</span> | <span style="color: red;">26.229 ms</span> |
+| DCT_by_FFT_ST (512, 512) | <span style="color: green;">12.727 ms</span> | <span style="color: red;">19.245 ms</span> |
+| DCT_by_FFT_ST (750, 750) | <span style="color: green;">21.399 ms</span> | <span style="color: red;">43.088 ms</span> |
+| DCT_by_FFT_ST (1024, 1024) | <span style="color: green;">39.154 ms</span> | <span style="color: red;">70.563 ms</span> |
+| DCT_by_FFT_ST (1500, 1500) | <span style="color: green;">112.052 ms</span> | <span style="color: red;">367.422 ms</span> |
+| DCT_by_FFT_ST (2048, 2048) | <span style="color: green;">154.503 ms</span> | <span style="color: red;">378.215 ms</span> |
+| DCT_by_FFT_ST (3000, 3000) | <span style="color: green;">420.087 ms</span> | <span style="color: red;">1148.883 ms</span> |
+| DCT_by_FFT_ST (4096, 4096) | <span style="color: green;">551.990 ms</span> | <span style="color: red;">1297.170 ms</span> |
+| DCT_ST (32, 32) | <span style="color: red;">0.468 ms</span> | <span style="color: green;">0.367 ms</span> |
+| DCT_ST (64, 64) | <span style="color: red;">0.633 ms</span> | <span style="color: green;">0.451 ms</span> |
+| DCT_ST (128, 128) | <span style="color: green;">1.289 ms</span> | <span style="color: red;">1.589 ms</span> |
+| DCT_ST (250, 250) | <span style="color: green;">2.140 ms</span> | <span style="color: red;">2.844 ms</span> |
+| DCT_ST (256, 256) | <span style="color: red;">2.189 ms</span> | <span style="color: green;">1.860 ms</span> |
+| DCT_ST (500, 500) | <span style="color: green;">12.222 ms</span> | <span style="color: red;">22.803 ms</span> |
+| DCT_ST (512, 512) | <span style="color: green;">5.136 ms</span> | <span style="color: red;">9.729 ms</span> |
+| DCT_ST (750, 750) | <span style="color: green;">9.439 ms</span> | <span style="color: red;">24.462 ms</span> |
+| DCT_ST (1024, 1024) | <span style="color: green;">17.946 ms</span> | <span style="color: red;">34.678 ms</span> |
+| DCT_ST (1500, 1500) | <span style="color: green;">116.586 ms</span> | <span style="color: red;">393.512 ms</span> |
+| DCT_ST (2048, 2048) | <span style="color: green;">90.482 ms</span> | <span style="color: red;">310.811 ms</span> |
+| DCT_ST (3000, 3000) | <span style="color: green;">364.965 ms</span> | <span style="color: red;">1208.650 ms</span> |
+| DCT_ST (4096, 4096) | <span style="color: green;">230.415 ms</span> | <span style="color: red;">899.399 ms</span> |
+| FFT_ST (32, 32) | <span style="color: red;">0.517 ms</span> | <span style="color: green;">0.384 ms</span> |
+| FFT_ST (64, 64) | <span style="color: red;">0.818 ms</span> | <span style="color: green;">0.567 ms</span> |
+| FFT_ST (128, 128) | <span style="color: red;">1.103 ms</span> | <span style="color: green;">0.769 ms</span> |
+| FFT_ST (250, 250) | <span style="color: green;">1.663 ms</span> | <span style="color: red;">1.774 ms</span> |
+| FFT_ST (256, 256) | <span style="color: green;">1.679 ms</span> | <span style="color: red;">1.935 ms</span> |
+| FFT_ST (500, 500) | <span style="color: green;">4.051 ms</span> | <span style="color: red;">5.028 ms</span> |
+| FFT_ST (512, 512) | <span style="color: green;">4.652 ms</span> | <span style="color: red;">5.437 ms</span> |
+| FFT_ST (750, 750) | <span style="color: green;">7.730 ms</span> | <span style="color: red;">11.598 ms</span> |
+| FFT_ST (1024, 1024) | <span style="color: green;">11.778 ms</span> | <span style="color: red;">19.227 ms</span> |
+| FFT_ST (1500, 1500) | <span style="color: green;">27.282 ms</span> | <span style="color: red;">45.350 ms</span> |
+| FFT_ST (2048, 2048) | <span style="color: green;">53.743 ms</span> | <span style="color: red;">97.899 ms</span> |
+| FFT_ST (3000, 3000) | <span style="color: green;">103.185 ms</span> | <span style="color: red;">199.946 ms</span> |
+| FFT_ST (4096, 4096) | <span style="color: green;">178.489 ms</span> | <span style="color: red;">431.462 ms</span> |
 
 ## References
 [1] [Bing Sun, Jufu Feng, and Guoping Wang. “On the Translation-Invariance of Image
