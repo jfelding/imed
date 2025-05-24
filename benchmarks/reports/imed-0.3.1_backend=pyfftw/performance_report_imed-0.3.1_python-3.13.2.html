@@ -1,0 +1,479 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>imed Performance Benchmarks</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h1 { color: #333; }
+            h2 { color: #555; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+            img { max-width: 100%; height: auto; margin-bottom: 20px; }
+        </style>
+    </head>
+    <body>
+        <h1>imed Library Performance Benchmarks (Version: 0.3.1)</h1>
+        <p>This report details the execution time and memory benchmarks for key functions in the <code>imed</code> library.</p>
+
+        <h2>System Information</h2>
+        <ul><li><strong>Platform:</strong> Darwin</li><li><strong>Platform-Version:</strong> Darwin Kernel Version 24.3.0: Thu Jan  2 20:24:23 PST 2025; root:xnu-11215.81.4~3/RELEASE_ARM64_T8122</li><li><strong>Architecture:</strong> arm64</li><li><strong>CPU:</strong> Apple M3</li><li><strong>Physical Cores:</strong> 8</li><li><strong>Logical CPUs:</strong> 8</li><li><strong>RAM (GB):</strong> 16.0</li><li><strong>Python Version:</strong> 3.13.2</li><li><strong>IMED version:</strong> 0.3.1</li></ul>
+
+        <h2>Benchmark Results</h2>
+        <table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>function</th>
+      <th>input_shape</th>
+      <th>mean_time_ms</th>
+      <th>sem_time_ms</th>
+      <th>mean_memory_bytes</th>
+      <th>sem_memory_bytes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>fullMat_ST</td>
+      <td>(32, 32)</td>
+      <td>93.766684</td>
+      <td>0.598750</td>
+      <td>51706720.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>fullMat_ST</td>
+      <td>(64, 64)</td>
+      <td>7190.376808</td>
+      <td>99.158679</td>
+      <td>814383200.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>sepMat_ST</td>
+      <td>(32, 32)</td>
+      <td>0.348992</td>
+      <td>0.014029</td>
+      <td>77968.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>sepMat_ST</td>
+      <td>(64, 64)</td>
+      <td>0.884200</td>
+      <td>0.072933</td>
+      <td>303248.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>sepMat_ST</td>
+      <td>(128, 128)</td>
+      <td>2.714783</td>
+      <td>0.051545</td>
+      <td>1312880.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>sepMat_ST</td>
+      <td>(250, 250)</td>
+      <td>8.867934</td>
+      <td>0.040512</td>
+      <td>4536144.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>sepMat_ST</td>
+      <td>(256, 256)</td>
+      <td>9.724733</td>
+      <td>0.126491</td>
+      <td>4757648.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>sepMat_ST</td>
+      <td>(500, 500)</td>
+      <td>38.325000</td>
+      <td>0.248426</td>
+      <td>18076144.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>sepMat_ST</td>
+      <td>(512, 512)</td>
+      <td>44.262359</td>
+      <td>0.271209</td>
+      <td>18952336.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>sepMat_ST</td>
+      <td>(750, 750)</td>
+      <td>104.219950</td>
+      <td>4.216327</td>
+      <td>45222144.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>sepMat_ST</td>
+      <td>(1024, 1024)</td>
+      <td>240.300566</td>
+      <td>1.625567</td>
+      <td>84172944.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>sepMat_ST</td>
+      <td>(1500, 1500)</td>
+      <td>572.386692</td>
+      <td>16.408262</td>
+      <td>170686896.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>sepMat_ST</td>
+      <td>(2048, 2048)</td>
+      <td>1916.679592</td>
+      <td>17.765568</td>
+      <td>310689936.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>sepMat_ST</td>
+      <td>(3000, 3000)</td>
+      <td>4421.399200</td>
+      <td>17.300297</td>
+      <td>656722896.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>sepMat_ST</td>
+      <td>(4096, 4096)</td>
+      <td>17109.479367</td>
+      <td>130.686071</td>
+      <td>1216708752.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>DCT_by_FFT_ST</td>
+      <td>(32, 32)</td>
+      <td>0.736150</td>
+      <td>0.028245</td>
+      <td>98081.6</td>
+      <td>537.649522</td>
+    </tr>
+    <tr>
+      <td>DCT_by_FFT_ST</td>
+      <td>(64, 64)</td>
+      <td>1.183384</td>
+      <td>0.082039</td>
+      <td>382441.6</td>
+      <td>1659.209103</td>
+    </tr>
+    <tr>
+      <td>DCT_by_FFT_ST</td>
+      <td>(128, 128)</td>
+      <td>2.672792</td>
+      <td>0.172652</td>
+      <td>1502350.4</td>
+      <td>1389.173037</td>
+    </tr>
+    <tr>
+      <td>DCT_by_FFT_ST</td>
+      <td>(250, 250)</td>
+      <td>4.249250</td>
+      <td>0.206040</td>
+      <td>5621416.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>DCT_by_FFT_ST</td>
+      <td>(256, 256)</td>
+      <td>4.500750</td>
+      <td>0.125798</td>
+      <td>5886814.4</td>
+      <td>1791.329017</td>
+    </tr>
+    <tr>
+      <td>DCT_by_FFT_ST</td>
+      <td>(500, 500)</td>
+      <td>16.213608</td>
+      <td>0.315692</td>
+      <td>23394184.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>DCT_by_FFT_ST</td>
+      <td>(512, 512)</td>
+      <td>12.726833</td>
+      <td>0.163343</td>
+      <td>23315947.2</td>
+      <td>88.727177</td>
+    </tr>
+    <tr>
+      <td>DCT_by_FFT_ST</td>
+      <td>(750, 750)</td>
+      <td>21.399300</td>
+      <td>0.394965</td>
+      <td>49861812.8</td>
+      <td>88.727177</td>
+    </tr>
+    <tr>
+      <td>DCT_by_FFT_ST</td>
+      <td>(1024, 1024)</td>
+      <td>39.154483</td>
+      <td>0.985781</td>
+      <td>92767624.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>DCT_by_FFT_ST</td>
+      <td>(1500, 1500)</td>
+      <td>112.052475</td>
+      <td>1.887835</td>
+      <td>202178184.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>DCT_by_FFT_ST</td>
+      <td>(2048, 2048)</td>
+      <td>154.502608</td>
+      <td>4.321592</td>
+      <td>370083505.6</td>
+      <td>108.668155</td>
+    </tr>
+    <tr>
+      <td>DCT_by_FFT_ST</td>
+      <td>(3000, 3000)</td>
+      <td>420.087375</td>
+      <td>5.500476</td>
+      <td>800354184.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>DCT_by_FFT_ST</td>
+      <td>(4096, 4096)</td>
+      <td>551.989667</td>
+      <td>7.215374</td>
+      <td>1478362900.8</td>
+      <td>88.727177</td>
+    </tr>
+    <tr>
+      <td>DCT_ST</td>
+      <td>(32, 32)</td>
+      <td>0.467900</td>
+      <td>0.028852</td>
+      <td>41163.2</td>
+      <td>980.505274</td>
+    </tr>
+    <tr>
+      <td>DCT_ST</td>
+      <td>(64, 64)</td>
+      <td>0.632533</td>
+      <td>0.033011</td>
+      <td>153939.2</td>
+      <td>1267.063831</td>
+    </tr>
+    <tr>
+      <td>DCT_ST</td>
+      <td>(128, 128)</td>
+      <td>1.288875</td>
+      <td>0.108219</td>
+      <td>604768.0</td>
+      <td>1625.234605</td>
+    </tr>
+    <tr>
+      <td>DCT_ST</td>
+      <td>(250, 250)</td>
+      <td>2.139867</td>
+      <td>0.198964</td>
+      <td>2161084.8</td>
+      <td>2873.615679</td>
+    </tr>
+    <tr>
+      <td>DCT_ST</td>
+      <td>(256, 256)</td>
+      <td>2.188608</td>
+      <td>0.223564</td>
+      <td>2248899.2</td>
+      <td>2752.276823</td>
+    </tr>
+    <tr>
+      <td>DCT_ST</td>
+      <td>(500, 500)</td>
+      <td>12.222075</td>
+      <td>0.187556</td>
+      <td>9482672.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>DCT_ST</td>
+      <td>(512, 512)</td>
+      <td>5.136058</td>
+      <td>0.130253</td>
+      <td>8726384.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>DCT_ST</td>
+      <td>(750, 750)</td>
+      <td>9.438683</td>
+      <td>0.108879</td>
+      <td>18493904.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>DCT_ST</td>
+      <td>(1024, 1024)</td>
+      <td>17.945925</td>
+      <td>1.050581</td>
+      <td>34214960.0</td>
+      <td>11734.884746</td>
+    </tr>
+    <tr>
+      <td>DCT_ST</td>
+      <td>(1500, 1500)</td>
+      <td>116.586400</td>
+      <td>3.984036</td>
+      <td>76442672.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>DCT_ST</td>
+      <td>(2048, 2048)</td>
+      <td>90.481950</td>
+      <td>2.325862</td>
+      <td>135563120.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>DCT_ST</td>
+      <td>(3000, 3000)</td>
+      <td>364.964933</td>
+      <td>8.428823</td>
+      <td>296882672.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>DCT_ST</td>
+      <td>(4096, 4096)</td>
+      <td>230.415300</td>
+      <td>7.671183</td>
+      <td>539559792.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>FFT_ST</td>
+      <td>(32, 32)</td>
+      <td>0.517233</td>
+      <td>0.021085</td>
+      <td>49835.2</td>
+      <td>192.500681</td>
+    </tr>
+    <tr>
+      <td>FFT_ST</td>
+      <td>(64, 64)</td>
+      <td>0.818017</td>
+      <td>0.062422</td>
+      <td>181899.2</td>
+      <td>782.557367</td>
+    </tr>
+    <tr>
+      <td>FFT_ST</td>
+      <td>(128, 128)</td>
+      <td>1.102908</td>
+      <td>0.069520</td>
+      <td>708918.4</td>
+      <td>2991.546832</td>
+    </tr>
+    <tr>
+      <td>FFT_ST</td>
+      <td>(250, 250)</td>
+      <td>1.662617</td>
+      <td>0.087945</td>
+      <td>2617716.8</td>
+      <td>2283.107048</td>
+    </tr>
+    <tr>
+      <td>FFT_ST</td>
+      <td>(256, 256)</td>
+      <td>1.679075</td>
+      <td>0.061495</td>
+      <td>2750612.8</td>
+      <td>3617.597948</td>
+    </tr>
+    <tr>
+      <td>FFT_ST</td>
+      <td>(500, 500)</td>
+      <td>4.051483</td>
+      <td>0.182176</td>
+      <td>10273076.8</td>
+      <td>5376.042666</td>
+    </tr>
+    <tr>
+      <td>FFT_ST</td>
+      <td>(512, 512)</td>
+      <td>4.652017</td>
+      <td>0.271426</td>
+      <td>10758763.2</td>
+      <td>2941.593451</td>
+    </tr>
+    <tr>
+      <td>FFT_ST</td>
+      <td>(750, 750)</td>
+      <td>7.729900</td>
+      <td>0.247287</td>
+      <td>22908676.8</td>
+      <td>4304.699185</td>
+    </tr>
+    <tr>
+      <td>FFT_ST</td>
+      <td>(1024, 1024)</td>
+      <td>11.778208</td>
+      <td>0.569054</td>
+      <td>42506900.8</td>
+      <td>7193.130803</td>
+    </tr>
+    <tr>
+      <td>FFT_ST</td>
+      <td>(1500, 1500)</td>
+      <td>27.282059</td>
+      <td>1.389791</td>
+      <td>90829902.4</td>
+      <td>9612.801704</td>
+    </tr>
+    <tr>
+      <td>FFT_ST</td>
+      <td>(2048, 2048)</td>
+      <td>53.743358</td>
+      <td>3.335583</td>
+      <td>168871752.0</td>
+      <td>18554.481938</td>
+    </tr>
+    <tr>
+      <td>FFT_ST</td>
+      <td>(3000, 3000)</td>
+      <td>103.184758</td>
+      <td>3.918004</td>
+      <td>361686715.2</td>
+      <td>17184.450735</td>
+    </tr>
+    <tr>
+      <td>FFT_ST</td>
+      <td>(4096, 4096)</td>
+      <td>178.488792</td>
+      <td>2.583318</td>
+      <td>673417096.0</td>
+      <td>0.000000</td>
+    </tr>
+  </tbody>
+</table>
+
+        <h2>Performance Comparison Plots</h2>        
+        <h3>Execution Time (Logarithmic Y-axis)</h3>
+        <img src="execution_time_comparison_log.png" alt="Execution Time Log Scale">
+        <h3>Peak Memory Usage (Logarithmic Y-axis)</h3>
+        <img src="peak_memory_comparison_log.png" alt="Peak Memory Usage Log Scale">
+
+    </body>
+    </html>
+    

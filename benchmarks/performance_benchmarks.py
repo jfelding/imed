@@ -2,18 +2,20 @@ import numpy as np
 import time
 import os
 import sys
+import re
 import matplotlib.pyplot as plt
 import pandas as pd
 import platform
 import psutil
 import cpuinfo
+from pathlib import Path
 import memray
 import json
 import subprocess
-import re
 import tempfile
 from contextlib import contextmanager, nullcontext
 from scipy import fft
+import logging
 
 from imed.frequency import DCT_by_FFT_ST, DCT_ST, FFT_ST
 from imed.legacy import fullMat_ST, sepMat_ST
@@ -44,55 +46,77 @@ def get_system_info():
     }
 
 
-def get_peak_memory_bytes(profile_file: str) -> int:
-    """
-    Return the peak memory (in bytes) recorded in a Memray .bin file.
-    1) Try `memray stats --json` (Memray ≥1.8). If its output is empty or invalid JSON, skip.
-    2) Fallback to `memray summary` and extract bare floats (assumed MB).
-    """
-    # 1) JSON first
-    proc = subprocess.run(
-        [sys.executable, "-m", "memray", "stats", "--json", profile_file],
-        capture_output=True, text=True
-    )
-    if proc.stdout:
-        try:
-            data = json.loads(proc.stdout)
-            if "peak_memory" in data:
-                return int(data["peak_memory"])
-        except json.JSONDecodeError:
-            # Not valid JSON → fallback
-            pass
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-    # 2) Fallback: human summary → find all "NNN.NNNMB" or "NNN.NNNKB", convert to bytes
-    proc = subprocess.run(
-        [sys.executable, "-m", "memray", "summary", profile_file],
-        capture_output=True, text=True, check=True
-    )
-    text = proc.stdout or proc.stderr
-    # Match value and unit (KB or MB)
-    matches = re.findall(r"([\d\.]+)([KM]B)", text)
-    if not matches:
-        raise RuntimeError(f"No memory size values in memray summary output:\n{text!r}")
-    peak_bytes_list = []
-    for val, unit in matches:
-        size = float(val)
-        if unit == "KB":
-            peak_bytes_list.append(size * 1024)
-        elif unit == "MB":
-            peak_bytes_list.append(size * 1024**2)
-    peak_bytes = max(peak_bytes_list)
-    return int(peak_bytes)
+def get_peak_memory_bytes(profile_file: str) -> float:
+    """
+    Return the peak memory usage in bytes recorded in a Memray profile file.
+    
+    1) Attempt `memray stats --json` (Memray ≥1.8). If JSON output is valid or writes to a file,
+       load the JSON and look for `peak_memory` (bytes).
+    """
+    # 1) Try JSON-based stats first
+    try:
+        proc = subprocess.run(
+            [sys.executable, "-m", "memray", "stats", "--json", profile_file],
+            capture_output=True, text=True, check=True
+        )
+    except subprocess.CalledProcessError as e:
+        logger.warning("`memray stats --json` failed (exit %d): %s",
+                       e.returncode, e.stderr or e.stdout)
+    else:
+        stdout = proc.stdout or ""
+        stdout_stripped = stdout.strip()
+        data = None
 
+        # Check if memray wrote JSON to a file
+        wrote_match = re.match(r"Wrote (.*\.json)$", stdout_stripped)
+        if wrote_match:
+            json_path = Path(wrote_match.group(1))
+            try:
+                with open(json_path, 'r') as f:
+                    data = json.load(f)
+            except Exception as e:
+                logger.error("Failed to load JSON from file %s: %s", json_path, e)
+                raise ValueError(f"Could not read JSON file {json_path}: {e}") from e
+        else:
+            # Otherwise, assume JSON was printed to stdout
+            if stdout_stripped.startswith("{"):
+                try:
+                    data = json.loads(stdout)
+                except json.JSONDecodeError as e:
+                    logger.error("Invalid JSON from memray stats:\n%s", stdout)
+                    raise ValueError(
+                        f"Invalid JSON from memray stats: {e} — output was:\n{stdout!r}"
+                    ) from e
+
+        if data:
+            # look in both top-level and metadata
+            peak = data.get("peak_memory")
+            if peak is None and isinstance(data.get("metadata"), dict):
+                peak = data["metadata"].get("peak_memory")
+
+            if peak is not None:
+                return peak
+            else:
+                logger.error("JSON is missing `peak_memory`: %s", data)
+                raise ValueError("JSON did not contain `peak_memory` field")
 
 
 # --- Helper Functions for Benchmarking ---
 
-ALL_INPUT_SIZES = [
-    (32, 32), (64, 64), (128, 128),
-    (256, 256), (512, 512), (1024, 1024),(2048, 2048), (4096, 4096),
+ALL_INPUT_SIZES = sorted([
+    (2**5,  2**5), 
+    (2**6,  2**6), 
+    (2**7,  2**7),
+    (2**8,  2**8),
+    (2**9,  2**9),
+    (2**10, 2**10),
+    (2**11, 2**11),
+    (2**12, 2**12),
     (250, 250), (500, 500), (750, 750), (1500, 1500), (3000, 3000),
-]
+])
 
 def run_benchmark(func, volume_shape, num_repetitions=5, *args, **kwargs):
     func_name = func.__name__
@@ -111,7 +135,7 @@ def run_benchmark(func, volume_shape, num_repetitions=5, *args, **kwargs):
         if i > 0:
             execution_times.append((t1 - t0) * 1000)
             peak_bytes = get_peak_memory_bytes(profile_file)
-            peak_memory_usages.append(peak_bytes / (1024 * 1024))  # → MiB
+            peak_memory_usages.append(peak_bytes)
 
     mean_time = np.mean(execution_times)
     sem_time = np.std(execution_times, ddof=0) / np.sqrt(len(execution_times))
@@ -119,7 +143,7 @@ def run_benchmark(func, volume_shape, num_repetitions=5, *args, **kwargs):
     sem_mem   = np.std(peak_memory_usages, ddof=0)  / np.sqrt(len(peak_memory_usages))
 
     print(f"  Mean Execution Time: {mean_time:.4f} ms ±{sem_time:.4f}")
-    print(f"  Mean Peak Memory:    {mean_mem:.4f} MiB ±{sem_mem:.4f}")
+    print(f"  Mean Peak Memory:    {mean_mem:.4f} B ±{sem_mem:.4f}")
     print("-" * 40)
 
     return {
@@ -127,8 +151,8 @@ def run_benchmark(func, volume_shape, num_repetitions=5, *args, **kwargs):
         "input_shape": volume_shape,
         "mean_time_ms": mean_time,
         "sem_time_ms": sem_time,
-        "mean_memory_mb": mean_mem,
-        "sem_memory_mb": sem_mem,
+        "mean_memory_bytes": mean_mem,
+        "sem_memory_bytes": sem_mem,
     }
 
 
@@ -146,7 +170,7 @@ def benchmark_fullMat_ST():
 
 def benchmark_sepMat_ST():
     print("\n--- Benchmarking sepMat_ST (Legacy, Inefficient) ---")
-    input_sizes = ALL_INPUT_SIZES[:5]
+    input_sizes = ALL_INPUT_SIZES
     sigma = 1.0
     results = []
     for N, M in input_sizes:
@@ -220,10 +244,10 @@ def generate_report(all_results, backend:str):
     for func_name in df["function"].unique():
         func_df = df[df["function"] == func_name].sort_values(by="input_shape")
         input_labels = [str(s) for s in func_df["input_shape"]]
-        plt.errorbar(input_labels, func_df["mean_memory_mb"], yerr=func_df["sem_memory_mb"], marker='o', capsize=5, label=func_name)
+        plt.errorbar(input_labels, func_df["mean_memory_bytes"], yerr=func_df["sem_memory_bytes"], marker='o', capsize=5, label=func_name)
 
     plt.xlabel("Input Shape (N, M)")
-    plt.ylabel("Mean Peak Memory (MB, Log Scale)")
+    plt.ylabel("Mean Peak Memory (B, Log Scale)")
     plt.title("Mean Peak Memory Usage vs. Input Size for imed Functions (Logarithmic Y-axis with SEM Error Bars)")
     plt.yscale("log")
     plt.legend()
@@ -266,9 +290,6 @@ def generate_report(all_results, backend:str):
         <h3>Peak Memory Usage (Logarithmic Y-axis)</h3>
         <img src="{os.path.basename(plot_path_log_memory)}" alt="Peak Memory Usage Log Scale">
 
-        <h2>Memory Profiling</h2>
-        <p>For detailed memory profiling, you can still run this script externally using `memray run`:</p>
-        <pre><code>memray run --output benchmarks_report.bin benchmarks/performance_benchmarks.py</code></pre>
     </body>
     </html>
     """
@@ -292,7 +313,7 @@ def fft_backend(name: str):
         # enable the FFTW wisdom cache
         pyfftw.interfaces.cache.enable()
         # install the FFTW‐powered backend
-        with fft.set_backend(pyfftw.interfaces.scipy_fft):
+        with fft.set_backend(pyfftw.interfaces.scipy_fft) and fft.set_workers(-1):
             yield
     else:
         # default scipy backend — no need to set anything
@@ -310,14 +331,14 @@ def run_all_benchmarks():
 if __name__ == "__main__":
     print("Starting performance benchmarks for imed library…")
     backend = "pyfftw"  # or "scipy"
+    for backend in "pyfftw", "scipy":
 
-    # one unified block:
-    with fft_backend(backend):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            PROFILE_DIR = tmpdir
-            results = run_all_benchmarks()
-            report = generate_report(results, backend)
+        with fft_backend(backend):
+            with tempfile.TemporaryDirectory() as tmpdir:
+                PROFILE_DIR = tmpdir
+                results = run_all_benchmarks()
+                report = generate_report(results, backend)
 
-            print("Performance benchmarks completed. "
-                  "Profiles stored in temporary directory and cleaned up.")
-            print(f"Open {report} in your browser to view the full report.")
+                print("Performance benchmarks completed. "
+                    "Profiles stored in temporary directory and cleaned up.")
+                print(f"Open {report} in your browser to view the full report.")
