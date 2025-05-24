@@ -152,3 +152,11 @@ cython_debug/
 # CTags
 /tags*
 
+# DS Store
+.DS_Store
+
+# Benchmark files
+benchmarks/*
+!benchmarks/*.py
+!benchmarks/reports/
+!benchmarks/reports/*.html

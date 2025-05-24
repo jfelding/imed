@@ -5,23 +5,19 @@ build-backend = "pdm.backend"
 
 [project]
 name = "imed"
-version = "0.3.0"
+version = "0.3.1"
 description = "Image Euclidean Distance and Standardizing Transforms"
 authors = [
     {name = "Jacob Ungar Felding", email = "jfelding@gmail.com"},
     {name = "Jacob Felding", email = "jfelding@gmail.com"},
 ]
 dependencies = ["numpy>=2.2.6", "scipy>=1.15.3"]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 readme = "README.md"
 license = {text = "MIT"}
 classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
@@ -34,8 +30,13 @@ Homepage = "https://github.com/jfelding/imed"
 distribution = true
 
 [tool.pdm.build]
-includes = ["imed"]
+includes = ["imed,"]
 [dependency-groups]
 dev = [
     "pytest>=8.3.5",
+    "memray>=1.17.2",
+    "matplotlib>=3.10.3",
+    "pandas>=2.2.3",
+    "psutil>=7.0.0",
+    "py-cpuinfo>=9.0.0",
 ]

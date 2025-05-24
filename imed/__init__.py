@@ -2,4 +2,5 @@ from imed.imed import (
     transform,
     distance,
     euclidean,
-)  # expose imed module functions to top level
+)
+from imed.__version__ import __version__ # expose imed.__version__

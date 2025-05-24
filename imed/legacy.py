@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 from numpy import sqrt, exp, pi, dot, zeros, arange, maximum
 
@@ -5,9 +6,17 @@ from numpy import sqrt, exp, pi, dot, zeros, arange, maximum
 def fullMat_ST(imgs, sigma, inverse=False):
     """
     This is created by Niklas Heim / James Avery; bugfixed by Jacob Felding
-    This method is present for historical reasons. 2D transform only.
-    DCT/FFT frequency methods are recommended over this one.
+    This method is present for historical reasons and is highly inefficient
+    for large inputs due to the creation and manipulation of an (M*N) x (M*N) matrix.
+    2D transform only.
+    The `sepMat_ST` method or DCT/FFT frequency methods are strongly recommended
+    over this one for better performance and lower memory usage.
     """
+    warnings.warn(
+        "fullMat_ST is highly inefficient and deprecated. Use sepMat_ST or frequency methods instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
     # Purposefully not M, N
     # sigma check
     if isinstance(sigma, (list, tuple, np.ndarray)):
